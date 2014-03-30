@@ -80,6 +80,27 @@ namespace GomocupOnline.Models
                     Player2 = lines[lines.Count - 2];
                     string result = lines[lines.Count - 1];
                     Result = int.Parse(result);
+
+                    string pbrain = "pbrain-";
+                    string exe = ".exe";
+
+                    if (Player1.ToLower().StartsWith(pbrain))
+                    {
+                        Player1 = Player1.Substring(pbrain.Length);
+                    }
+                    if (Player1.ToLower().EndsWith(exe))
+                    {
+                        Player1 = Player1.Substring(0, Player1.Length - exe.Length);
+                    }
+
+                    if (Player2.ToLower().StartsWith(pbrain))
+                    {
+                        Player2 = Player2.Substring(pbrain.Length);
+                    }
+                    if (Player2.ToLower().EndsWith(exe))
+                    {
+                        Player2 = Player2.Substring(0, Player2.Length - exe.Length);
+                    }
                 }
             }
 

@@ -9,23 +9,17 @@
     int durationMs = Model.Moves.Sum(m => m.DurationMS);
     
     TimeSpan duration = new TimeSpan(0,0,0,0, durationMs);
+    
+    string strDuration = duration.ToString("hh\\:mm\\:ss");
 
     string id = Guid.NewGuid().ToString();
 
     int squareSize = 20;
 }
 
-<h2>@ViewBag.Title @Model.Player1 vs @Model.Player2</h2>
+<h2>@Model.Player1 vs @Model.Player2</h2>
 
-<dl>
-    <dt>Moves</dt>
-    <dd>@Model.Moves.Count</dd>
-
-    <dt>Duration</dt>
-    <dd>@duration.ToString()</dd>
-</dl>
-
-<canvas id="@id" width="500" height="540"></canvas>
+<canvas id="@id" width="500" height="530"></canvas>
 
 <script type="text/javascript" src="~/Scripts/gomoku.canvas.js"></script>
 <script type="text/javascript">
@@ -44,6 +38,7 @@
         player2: '@(Model.Player2)',
         filename: '@(Model.FileName)',
         result: @(Model.Result),
+        duration: '@(strDuration)',
     };
 
     var drawSettings = {

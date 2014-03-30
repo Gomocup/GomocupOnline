@@ -17,6 +17,9 @@ namespace GomocupOnline.Controllers
             string path = AppDomain.CurrentDomain.GetData("DataDirectory").ToString();
             path = Path.Combine(path, "Tournaments");
 
+            if( !Directory.Exists(path))
+                return View(new TournamentModel[0]);
+
             string[] dirs = Directory.GetDirectories(path);
 
             TournamentModel[] model = dirs.Select(d => new TournamentModel(d)).ToArray();

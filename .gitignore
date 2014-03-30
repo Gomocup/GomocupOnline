@@ -6,3 +6,6 @@ Release/
 .cache
 *.suo
 *.user
+*.sdf
+*.opensdf
+*.psq
