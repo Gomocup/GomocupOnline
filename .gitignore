@@ -1,4 +1,5 @@
 *.pdb
+bin/
 obj/
 Debug/
 Release/
