@@ -1,0 +1,59 @@
+﻿@using System.Linq
+
+@model GomocupOnline.Models.GomokuMatchModel
+
+@{
+    ViewBag.Title = "Match";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+    
+    int durationMs = Model.Moves.Sum(m => m.DurationMS);
+    
+    TimeSpan duration = new TimeSpan(0,0,0,0, durationMs);
+
+    string id = Guid.NewGuid().ToString();
+
+    int squareSize = 20;
+}
+
+<h2>@ViewBag.Title @Model.Player1 vs @Model.Player2</h2>
+
+<dl>
+    <dt>Moves</dt>
+    <dd>@Model.Moves.Count</dd>
+
+    <dt>Duration</dt>
+    <dd>@duration.ToString()</dd>
+</dl>
+
+<canvas id="@id" width="500" height="540"></canvas>
+
+<script type="text/javascript" src="~/Scripts/gomoku.canvas.js"></script>
+<script type="text/javascript">
+
+    var stones = [];
+    @for (int i = 0; i < Model.Moves.Count; i++)
+    {
+        @Html.Raw("    stones.push({X:" + Model.Moves[i].X + ",Y:" + Model.Moves[i].Y + ",DurationMS:" + Model.Moves[i].DurationMS + "});\r\n");
+    }
+
+    var board = {
+        n : @(Model.Width),
+        m : @(Model.Height),
+        stones: stones,
+        player1: '@(Model.Player1)',
+        player2: '@(Model.Player2)',
+        filename: '@(Model.FileName)',
+        result: @(Model.Result),
+    };
+
+    var drawSettings = {
+        lineWidth: 0.5,
+    };
+
+
+    var canvas = document.getElementById('@id');
+
+    DrawGomoku(canvas, board, drawSettings);
+
+
+</script>

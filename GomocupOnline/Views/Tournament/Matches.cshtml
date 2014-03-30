@@ -1,0 +1,41 @@
+﻿@model IEnumerable<GomocupOnline.Models.GomokuMatchInfoModel>
+
+@{
+    ViewBag.Title = "Matches";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Matches</h2>
+
+<p>
+    @Html.ActionLink("Create New", "Create")
+</p>
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.LastChange)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.FileName)
+        </th>
+        <th>
+            Detail
+        </th>
+        <th></th>
+    </tr>
+
+@foreach (var item in Model) {
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.LastChange)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.FileName)
+        </td>
+        <td>
+            @Html.ActionLink("Detail", "Match", new { tournamentMatch = item.FileName })
+        </td>
+    </tr>
+}
+
+</table>
