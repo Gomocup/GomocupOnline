@@ -1,4 +1,20 @@
-﻿function DrawGomoku(canvas, board, drawSettings)
+﻿function FormatMiliseconds(totalMiliseconds)
+{
+    var totalSec = totalMiliseconds / 1000;
+    var hours = parseInt(totalSec / 3600) % 24;
+    var minutes = parseInt(totalSec / 60) % 60;
+    var seconds = totalSec % 60;
+
+    if (totalMiliseconds < 10000)
+        seconds = Math.round(seconds * 10) / 10;
+    else
+        seconds = Math.round(seconds);
+
+    var result = (hours < 10 ? "0" + hours : hours) + ":" + (minutes < 10 ? "0" + minutes : minutes) + ":" + (seconds < 10 ? "0" + seconds : seconds);
+    return result;
+}
+
+function DrawGomoku(canvas, board, drawSettings)
 {
     var colorPlayer1 = 'white';
     var colorPlayer2 = 'black';
@@ -50,9 +66,13 @@
     
     var stoneColors = [colorPlayer1, colorPlayer2];
 
+    var durationTotalMs = 0;
+
     for (var i = 0; i < board.stones.length; i += 1) {
         var x = board.stones[i].X * squareSizeX + squareSizeX / 2 + 1;
         var y = board.stones[i].Y * squareSizeY + squareSizeY / 2 + 1;
+
+        durationTotalMs = durationTotalMs + board.stones[i].DurationMS;
 
         context.beginPath();
         context.arc(x, y, radius, 0, 2 * Math.PI, false);
@@ -104,7 +124,7 @@
 
     //moves, duration
     context.textAlign = 'center';
-    var info = 'moves: ' + stones.length + ', duration: ' + board.duration;
+    var info = 'moves: ' + board.stones.length + ', duration: ' + FormatMiliseconds(durationTotalMs);
     context.fillText(info, (blackCenterX + whiteCenterX) / 2, whiteCenterY + fontSize / 2);
 
 }

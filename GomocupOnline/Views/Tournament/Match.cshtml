@@ -12,33 +12,39 @@
     
     string strDuration = duration.ToString("hh\\:mm\\:ss");
 
-    string id = Guid.NewGuid().ToString();
+    string id = Guid.NewGuid().ToString().Replace("-","").Substring(0,6);
 
-    int squareSize = 20;
+    //int squareSize = 20;
+
+    string stones = "stones" + id;
+    string board = "board" + id;
+    string canvas = "canvas" + id;
 }
 
 <h2>@Model.Player1 vs @Model.Player2</h2>
 
-<canvas id="@id" width="500" height="530"></canvas>
+<div>
+    <canvas id="@id" width="500" height="530"></canvas>
+    <button onclick="UpdateBoard('@id')"></button>
+</div>
 
 <script type="text/javascript" src="~/Scripts/gomoku.canvas.js"></script>
 <script type="text/javascript">
-
-    var stones = [];
+    
+    var @(stones) = [];
     @for (int i = 0; i < Model.Moves.Count; i++)
     {
-        @Html.Raw("    stones.push({X:" + Model.Moves[i].X + ",Y:" + Model.Moves[i].Y + ",DurationMS:" + Model.Moves[i].DurationMS + "});\r\n");
+        @Html.Raw("    " + stones + ".push({X:" + Model.Moves[i].X + ",Y:" + Model.Moves[i].Y + ",DurationMS:" + Model.Moves[i].DurationMS + "});\r\n");
     }
 
-    var board = {
+    var @(board) = {
         n : @(Model.Width),
         m : @(Model.Height),
-        stones: stones,
+        stones: @(stones),
         player1: '@(Model.Player1)',
         player2: '@(Model.Player2)',
         filename: '@(Model.FileName)',
         result: @(Model.Result),
-        duration: '@(strDuration)',
     };
 
     var drawSettings = {
@@ -46,9 +52,17 @@
     };
 
 
-    var canvas = document.getElementById('@id');
+    var @(canvas) = document.getElementById('@id');
 
-    DrawGomoku(canvas, board, drawSettings);
+    DrawGomoku(@(canvas), @(board), drawSettings);
 
+    function UpdateBoard(id)
+    {
+        var canvas = document.getElementById(id);
+        var board = 
+
+        DrawGomoku(canvas, board, drawSettings);
+
+    }
 
 </script>
