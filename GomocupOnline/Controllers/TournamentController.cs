@@ -53,14 +53,29 @@ namespace GomocupOnline.Controllers
             if (tournamentMatch == null || tournamentMatch.Contains(".."))
                 throw new ArgumentException();
 
+            string path = GetMatchPath(tournamentMatch);
+            GomokuMatchModel model = new GomokuMatchModel(path);
+            model.FileName = tournamentMatch.Replace("\\","\\\\");
+            return View(model);
+        }
+
+        public JsonResult MatchJSON(string tournamentMatch)
+        {
+            if (tournamentMatch == null || tournamentMatch.Contains(".."))
+                throw new ArgumentException();
+
+            string path = GetMatchPath(tournamentMatch);
+            GomokuMatchModel model = new GomokuMatchModel(path);
+            model.FileName = tournamentMatch.Replace("\\", "\\\"");
+            return Json(model, JsonRequestBehavior.AllowGet);
+        }
+
+        private static string GetMatchPath(string tournamentMatch)
+        {
             string path = AppDomain.CurrentDomain.GetData("DataDirectory").ToString();
             path = Path.Combine(path, "Tournaments");
             path += "\\" + tournamentMatch;
-
-
-            GomokuMatchModel model = new GomokuMatchModel(path);
-
-            return View(model);
+            return path;
         }
 
     }

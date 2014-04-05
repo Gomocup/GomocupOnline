@@ -25,26 +25,27 @@
 
 <div>
     <canvas id="@id" width="500" height="530"></canvas>
-    <button onclick="UpdateBoard('@id')"></button>
+    <br />
+    <button type="button" onclick="UpdateBoard('@id', '@(Model.FileName)')">Update</button>    
 </div>
 
 <script type="text/javascript" src="~/Scripts/gomoku.canvas.js"></script>
 <script type="text/javascript">
     
-    var @(stones) = [];
-    @for (int i = 0; i < Model.Moves.Count; i++)
+    var stones = [];
+    @for (int i = 0; i < Model.Moves.Length; i++)
     {
-        @Html.Raw("    " + stones + ".push({X:" + Model.Moves[i].X + ",Y:" + Model.Moves[i].Y + ",DurationMS:" + Model.Moves[i].DurationMS + "});\r\n");
+        @Html.Raw("    stones.push({X:" + Model.Moves[i].X + ",Y:" + Model.Moves[i].Y + ",DurationMS:" + Model.Moves[i].DurationMS + "});\r\n");
     }
 
     var @(board) = {
-        n : @(Model.Width),
-        m : @(Model.Height),
-        stones: @(stones),
-        player1: '@(Model.Player1)',
-        player2: '@(Model.Player2)',
-        filename: '@(Model.FileName)',
-        result: @(Model.Result),
+        Width : @(Model.Width),
+        Height : @(Model.Height),
+        Moves: stones,
+        Player1: '@(Model.Player1)',
+        Player2: '@(Model.Player2)',
+        FileName: '@(Model.FileName)',
+        Result: @(Model.Result),
     };
 
     var drawSettings = {
@@ -56,13 +57,17 @@
 
     DrawGomoku(@(canvas), @(board), drawSettings);
 
-    function UpdateBoard(id)
+    function UpdateBoard(id, filename)
     {
-        var canvas = document.getElementById(id);
-        var board = 
+        var canvas = document.getElementById(id, filename);
 
-        DrawGomoku(canvas, board, drawSettings);
-
+        var jsonQuery = {};
+        jsonQuery.tournamentMatch = filename;          
+        $.getJSON("MatchJSON", jsonQuery, function( data ) {
+        
+            board = data;            
+            DrawGomoku(canvas, board, drawSettings);    
+        });  
     }
 
 </script>

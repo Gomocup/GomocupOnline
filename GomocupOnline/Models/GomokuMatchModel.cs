@@ -19,7 +19,7 @@ namespace GomocupOnline.Models
 
         public string Player2 { get; set; }
 
-        public List<GomokuMove> Moves { get; set; }
+        public GomokuMove[] Moves { get; set; }
 
         public int Result { get; set; }
 
@@ -44,7 +44,7 @@ namespace GomocupOnline.Models
 
             }
 
-            Moves = new List<GomokuMove>();
+            var moves = new List<GomokuMove>();
 
             if (lines.Count > 0)
             {
@@ -71,7 +71,7 @@ namespace GomocupOnline.Models
                         Y = int.Parse(numbers[1]),
                         DurationMS = int.Parse(numbers[2]),
                     };
-                    Moves.Add(move);
+                    moves.Add(move);
                 }
 
                 if( lines.Count > 4 )
@@ -103,6 +103,7 @@ namespace GomocupOnline.Models
                     }
                 }
             }
+            Moves = moves.ToArray();
 
         }
     }
