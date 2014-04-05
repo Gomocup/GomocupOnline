@@ -100,15 +100,7 @@
         ws.onclose = function () {
             $('@(status)').text("disconnected");
         };
-
-        @*$("#btnSend").click(function () {
-            if (ws.readyState == WebSocket.OPEN) {
-                ws.send($("#textInput").val());
-            }
-            else {
-                $('@(status)').text("Connection is closed");
-            }
-        });*@
+       
         $("#btnDisconnect").click(function () {
             ws.close();
         });

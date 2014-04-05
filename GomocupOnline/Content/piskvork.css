@@ -1,0 +1,45 @@
+
+
+/* TABS http://code-tricks.com/create-a-simple-html5-tabs-using-jquery/ */
+
+.tabs a {
+    cursor: pointer;
+    padding: 5px;
+    border: 1px solid #666;
+    border-bottom: 0;
+    background: #666;
+    color: #fff;
+}
+
+    .tabs a:hover, .tabs a.active {
+        background: #fff;
+        color: #000;
+    }
+
+.tabContent {
+    border: 1px solid #aaa;
+    margin: 4px 0;
+    padding: 5px;
+}
+
+
+.win
+{
+	background-color: #C8E1C2;
+}
+
+.loss
+{
+	background-color: #FFAD5C;
+}
+
+.draw
+{
+	background-color: #99CCFF;
+}
+
+.dash, table th
+{
+	background-color: #E0E0E0;
+}
+

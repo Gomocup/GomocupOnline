@@ -1,0 +1,142 @@
+﻿
+@{
+    ViewBag.Title = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<script type="text/javascript" src="~/Scripts/gomoku.canvas.js"></script>
+
+<h2>Gomocup online</h2>
+
+<div>
+    <span id="status" style="color:red;"></span> <button type="button" style="display: inline-block;" onclick="Reconnect();">Reconnect</button>
+</div>
+<br />
+
+<div id="boards" style="width:100%"></div>
+<div id="tables" style="width:100%" class="tabs">
+    <div class="tabs" id="tabs">
+    </div>
+    <div class="tabContent" id="tabContent">
+    </div>
+    </div>
+
+<script type="text/javascript">      
+
+    var socketUrl = '/api/matchsocket';
+    var drawSettings = { lineWidth: 0.5 };
+    var canvasWidth = 360;
+    var canvasHeight = 390;
+    var reconnectTimeout = 1000 * 5;
+
+    function GetOrCreateCanvas(filename) {
+        var canvas = $('#boards').children("canvas[data-filename='" + filename + "']");
+        if (canvas.length > 0)
+            return canvas[0];
+
+        canvas = $('<canvas/>');
+        canvas.css('padding','5px');
+        canvas.attr('width', canvasWidth);
+        canvas.attr('height', canvasHeight);
+        canvas.attr('data-filename', filename);       
+
+        $('#boards').append(canvas);
+        return canvas[0];
+    }
+
+    function GetOrCreateTable(filename)
+    {
+        var divTable = $('#tabContent').children("div[data-filename='" + filename + "']");
+        if (divTable.length > 0)
+            return divTable;
+
+        //http://jqueryui.com/tabs/
+
+        divTable = $('<div/>');
+        //divTable.css('width', '100%');
+        divTable.attr('data-filename', filename);
+        divTable.attr('id', filename);
+        divTable.attr('class', 'tabContent');       
+
+        tabs = $('#tabs');      
+        a = $('<a/>');     
+        a.attr('data-toggle', filename);
+        a.text(filename);        
+        tabs.append(a);
+
+        $('#tabContent').append(divTable);
+
+        $(".tabs a").html5jTabs();
+
+        return divTable;
+    }
+
+    var ws;
+    function Reconnect()
+    {
+        if (ws)
+            ws.close();
+
+        $('#status').text("Connecting");
+        ws = new WebSocket("ws://" + window.location.hostname + ':' + window.location.port + socketUrl);
+
+        ws.onopen = function () {
+            $('#status').text("Connected");
+            $('#status').css('color', 'green');
+
+            if (ws.readyState == WebSocket.OPEN) {
+                //ws.send('I am connected ');
+            }
+            else {
+                $('#status').text("Connection is closed");
+                $('#status').css('color', 'red');
+                ReconnectAfterTimeout();
+            }
+        };
+
+        ws.onmessage = function (evt) {
+            var received = JSON.parse(evt.data);
+
+            if (received.Moves) //it is board
+            {
+                var board = received;
+                var canvas = GetOrCreateCanvas(board.FileName);
+                DrawGomoku(canvas, board, drawSettings);
+            }
+            if( received.Table) //it is result table
+            {
+                var table = received;
+                var container = GetOrCreateTable(table.FileName);
+                container.html(received.Table); //replace content of table
+            }
+        };
+
+        ws.onerror = function (evt) {
+            $('#status').text(evt.message);
+        };
+
+        ws.onclose = function () {
+            $('#status').text("Disconnected");
+            $('#status').css('color','red');
+            ReconnectAfterTimeout();
+        };
+
+        //$("#btnDisconnect").click(function () {
+        //    ws.close();
+        //});
+    }
+
+    function ReconnectAfterTimeout()
+    {
+        setTimeout(function () { Reconnect(); }, reconnectTimeout);
+    }
+    
+    $().ready(function () {
+        Reconnect();
+    });
+
+    $(function () {
+        $("#tables").tabs();
+    });
+
+</script>

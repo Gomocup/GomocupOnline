@@ -54,8 +54,8 @@ function DrawGomoku(canvas, board, drawSettings)
     //last stone
     if (board.Moves.length > 0) {
         var last = board.Moves.length - 1;
-        var x = board.Moves[last].X * squareSizeX + 1;
-        var y = board.Moves[last].Y * squareSizeY + 1;
+        var x = (board.Moves[last].X - 1) * squareSizeX + 1;
+        var y = (board.Moves[last].Y - 1) * squareSizeY + 1;
 
         context.fillStyle = 'red';
         context.fillRect(x, y, squareSizeX, squareSizeY);
@@ -69,8 +69,8 @@ function DrawGomoku(canvas, board, drawSettings)
     var durationTotalMs = 0;
 
     for (var i = 0; i < board.Moves.length; i += 1) {
-        var x = board.Moves[i].X * squareSizeX + squareSizeX / 2 + 1;
-        var y = board.Moves[i].Y * squareSizeY + squareSizeY / 2 + 1;
+        var x = board.Moves[i].X * squareSizeX - squareSizeX / 2 + 1;
+        var y = board.Moves[i].Y * squareSizeY - squareSizeY / 2 + 1;
 
         durationTotalMs = durationTotalMs + board.Moves[i].DurationMS;
 
@@ -124,7 +124,7 @@ function DrawGomoku(canvas, board, drawSettings)
 
     //moves, duration
     context.textAlign = 'center';
-    var info = 'moves: ' + board.Moves.length + ', duration: ' + FormatMiliseconds(durationTotalMs);
+    var info = 'mov.: ' + board.Moves.length + ', dur.: ' + FormatMiliseconds(durationTotalMs);
     context.fillText(info, (blackCenterX + whiteCenterX) / 2, whiteCenterY + fontSize / 2);
 
 }

@@ -22,16 +22,19 @@ namespace GomocupOnline.Controllers
         static List<AspNetWebSocketContext> _receivers = new List<AspNetWebSocketContext>();
 
         static FileSystemWatcher _watcher;
-        static string _torunamentPath;
+        static string _tournamentPath;
+        static string _tournamentOnlinePath;
+        static string[] _ext = new string[] {".psq", ".html", ".txt" };
 
         //static HashSet<string> _watcherDelay = new HashSet<string>();
 
         static MatchSocketController()
         {
             string path = AppDomain.CurrentDomain.GetData("DataDirectory").ToString();
-            _torunamentPath = Path.Combine(path, "Tournaments");
+            _tournamentPath = Path.Combine(path, "Tournaments").ToLower();
+            _tournamentOnlinePath = Path.Combine(_tournamentPath, "online");
 
-            _watcher = new FileSystemWatcher(_torunamentPath);
+            _watcher = new FileSystemWatcher(_tournamentPath);
             _watcher.Changed += _watcher_Changed;
             _watcher.IncludeSubdirectories = true;
             _watcher.NotifyFilter = NotifyFilters.LastWrite;
@@ -42,6 +45,7 @@ namespace GomocupOnline.Controllers
         {
             string path = e.FullPath.ToLower();
 
+            Thread.Sleep(100);
 
             ////multiple events filter
             //if (_watcherDelay.Contains(path))
@@ -61,32 +65,21 @@ namespace GomocupOnline.Controllers
             //Trace.WriteLine(DateTime.Now.ToString() + " event passed " + path);
 
 
-            if (path.EndsWith(".psq"))
+            if (_ext.Any(extension => path.EndsWith(extension)))
             {
-                GomokuMatchModel model = new GomokuMatchModel(path);
-
-                string tournamentMatch = path.Substring(_torunamentPath.Length);
-                model.FileName = tournamentMatch.Replace("\\", "\\\"");
-
-                JavaScriptSerializer js = new JavaScriptSerializer();
-                string jsonMatch = js.Serialize(model);
-
-                var receivers = _receivers.ToArray();
-                ArraySegment<byte> buffer = new ArraySegment<byte>(Encoding.UTF8.GetBytes(jsonMatch));
-
-                foreach (AspNetWebSocketContext listener in receivers)
+                if (path.StartsWith(_tournamentOnlinePath))
                 {
                     try
                     {
-                        listener.WebSocket.SendAsync(buffer, WebSocketMessageType.Text, true, CancellationToken.None);
+                        SendToAll(path);
                     }
-                    catch
+                    catch(Exception ex)
                     {
-                        _receivers.Remove(listener);
+                        Trace.WriteLine(ex);
                     }
                 }
             }
-        }
+        }    
 
         public HttpResponseMessage Get()
         {
@@ -107,9 +100,22 @@ namespace GomocupOnline.Controllers
             model.FileName = tournamentMatch.Replace("\\", "\\\"");
 
             JavaScriptSerializer js = new JavaScriptSerializer();
-            string jsontest = js.Serialize(model);
+            return js.Serialize(model);            
+        }
 
-            return jsontest;
+        static ResultTable JsonResultTableModel(string path)
+        {
+            ResultTable model = new ResultTable();
+
+            string dir = Path.GetDirectoryName(path);            
+            model.FileName = Path.GetFileName(dir);
+
+            string html = File.ReadAllText(path);
+            int start = html.IndexOf("<TABLE");
+            int end = html.IndexOf("</BODY>");
+            model.Table = html.Substring(start, end - start);
+
+            return model;        
         }
 
         private async Task MatchNotify(AspNetWebSocketContext context)
@@ -118,12 +124,14 @@ namespace GomocupOnline.Controllers
             Trace.WriteLine(filename);
 
             WebSocket socket = context.WebSocket;
-
             _receivers.Add(context);
+
+            SendAllData(context);
 
             //return;
             while (true) //tohle je dulezite, aby se Socket nedisposoval
-            {
+            {               
+
                 ArraySegment<byte> buffer = new ArraySegment<byte>(new byte[1024]);
                 WebSocketReceiveResult result = await socket.ReceiveAsync(buffer, CancellationToken.None);
 
@@ -145,5 +153,91 @@ namespace GomocupOnline.Controllers
                 }
             }
         }
+
+
+        private static void SendToAll(string path)
+        {
+            AspNetWebSocketContext[] receivers = _receivers.ToArray();
+            
+            ArraySegment<byte>? buffer = CreateObjectBuffer(path);
+            if (buffer == null)
+                return;
+
+            foreach (AspNetWebSocketContext listener in receivers)
+            {
+                try
+                {
+                    listener.WebSocket.SendAsync(buffer.Value, WebSocketMessageType.Text, true, CancellationToken.None);
+                }
+                catch
+                {
+                    _receivers.Remove(listener);
+                }
+            }
+        }
+
+        private void SendAllData(AspNetWebSocketContext socketcontext)
+        {
+            //string[] allPsq = Directory.GetFiles(_tournamentOnlinePath, "*.psq", SearchOption.AllDirectories);
+
+            var files = Directory.EnumerateFiles(_tournamentOnlinePath, "*.*", SearchOption.AllDirectories)
+            .Where(s => _ext.Any(extension => s.ToLower().EndsWith(extension))).ToArray();
+
+
+            foreach (var file in files)
+            {
+                try
+                {
+                    ArraySegment<byte>? buffer = CreateObjectBuffer(file);
+                    if (buffer == null)
+                        continue;
+
+                    try
+                    {
+                        socketcontext.WebSocket.SendAsync(buffer.Value, WebSocketMessageType.Text, true, CancellationToken.None);
+                    }
+                    catch
+                    {
+                        _receivers.Remove(socketcontext);
+                        return;
+                    }
+
+                }
+                catch(Exception ex)
+                {
+                    Trace.WriteLine(ex);
+                    continue;
+                }              
+            }
+        }
+
+        private static ArraySegment<byte>? CreateObjectBuffer(string path)
+        {
+            object jsonModel = null;
+            if (path.ToLower().EndsWith(".psq"))
+            {
+
+                GomokuMatchModel model = new GomokuMatchModel(path);
+                string tournamentMatch = path.Substring(_tournamentPath.Length);
+                model.FileName = tournamentMatch.Replace("\\", "_");
+
+                jsonModel = model;
+            }
+            else if (path.ToLower().EndsWith(".html"))
+            {
+                jsonModel = JsonResultTableModel(path);
+            }
+            else
+            {
+                return null;
+            }
+
+            JavaScriptSerializer js = new JavaScriptSerializer();
+            string json = js.Serialize(jsonModel);
+
+            return new ArraySegment<byte>(Encoding.UTF8.GetBytes(json));
+        }
+
+       
     }
 }

@@ -14,12 +14,18 @@ namespace GomocupOnline
             routes.IgnoreRoute("{resource}.axd/{*pathInfo}");
 
 
+          //  routes.MapRoute(
+          //  "home", // Name
+          //  "", // URL
+          //  new { controller = "Home", action = "Index" }, // Homepage
+          //  new { controller = "Home", action = "Index" } // Homepage
+          //);
+
             routes.MapRoute(
-            "home", // Name
-            "", // URL
-            new { controller = "Home", action = "Index" }, // Homepage
-            new { controller = "Home", action = "Index" } // Homepage
-          );
+         "home", // Name
+         "", // URL
+         new { controller = "Online", action = "Index" } // Homepage         
+       );
 
             routes.MapRoute(
                 name: "Default",
