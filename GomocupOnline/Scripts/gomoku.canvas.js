@@ -90,7 +90,7 @@ function DrawGomoku(canvas, board, drawSettings)
     //white player
 
     var whiteCenterX = squareSizeX / 2 + footerMargin;
-    var whiteCenterY = board.m * squareSizeY + squareSizeY / 2 + 1 + footerMargin;
+    var whiteCenterY = board.Height * squareSizeY + squareSizeY / 2 + 1 + footerMargin;
 
     context.beginPath();
     context.arc(whiteCenterX, whiteCenterY, radius, 0, 2 * Math.PI, false);
@@ -117,10 +117,10 @@ function DrawGomoku(canvas, board, drawSettings)
 
     context.font = 'bold ' + fontSize + 'px sans-serif';
     context.textAlign = 'left';
-    context.fillText(board.player1, whiteCenterX + squareSizeX, whiteCenterY + fontSize / 2);
+    context.fillText(board.Player1, whiteCenterX + squareSizeX, whiteCenterY + fontSize / 2);
 
     context.textAlign = 'right';
-    context.fillText(board.player2, blackCenterX - squareSizeX, blackcenterY + fontSize / 2);
+    context.fillText(board.Player2, blackCenterX - squareSizeX, blackcenterY + fontSize / 2);
 
     //moves, duration
     context.textAlign = 'center';

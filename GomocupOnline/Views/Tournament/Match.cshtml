@@ -72,10 +72,11 @@
         });
     }
 
-    var socketUrl = '/api/matchsocket';
+    var socketUrl = '/api/matchsocket?match=' + '@(Model.FileName)';
 
     var ws;
     $().ready(function () {
+       
         $('@(status)').text("connecting");
         ws = new WebSocket("ws://" + window.location.hostname + ':' + window.location.port + socketUrl);
 
@@ -83,15 +84,15 @@
             $('@(status)').text("connected");
 
             if (ws.readyState == WebSocket.OPEN) {
-                ws.send('I am connected ' + @(board).FileName);
+                //ws.send('I am connected ' + @(board).FileName);
             }
             else {
                 $('@(status)').text("Connection is closed");
             }
         };
-        ws.onmessage = function (evt) {
-            alert(evt.data);
-            $('@(status)').text(evt.data);
+        ws.onmessage = function (evt) {           
+            var board = JSON.parse(evt.data);
+            DrawGomoku(@(canvas), board, drawSettings);
         };
         ws.onerror = function (evt) {
             $('@(status)').text(evt.message);

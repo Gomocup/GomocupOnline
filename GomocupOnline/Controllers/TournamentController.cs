@@ -70,7 +70,7 @@ namespace GomocupOnline.Controllers
             return Json(model, JsonRequestBehavior.AllowGet);
         }
 
-        private static string GetMatchPath(string tournamentMatch)
+        public static string GetMatchPath(string tournamentMatch)
         {
             string path = AppDomain.CurrentDomain.GetData("DataDirectory").ToString();
             path = Path.Combine(path, "Tournaments");
