@@ -5,33 +5,35 @@
 @{
     ViewBag.Title = "Match";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    
+
     int durationMs = Model.Moves.Sum(m => m.DurationMS);
-    
-    TimeSpan duration = new TimeSpan(0,0,0,0, durationMs);
-    
+
+    TimeSpan duration = new TimeSpan(0, 0, 0, 0, durationMs);
+
     string strDuration = duration.ToString("hh\\:mm\\:ss");
 
-    string id = Guid.NewGuid().ToString().Replace("-","").Substring(0,6);
+    string id = Guid.NewGuid().ToString().Replace("-", "").Substring(0, 6);
 
     //int squareSize = 20;
 
     string stones = "stones" + id;
     string board = "board" + id;
     string canvas = "canvas" + id;
+    string status = "status" + id;
 }
 
 <h2>@Model.Player1 vs @Model.Player2</h2>
 
 <div>
+    <span id="@status">no status</span><br />
     <canvas id="@id" width="500" height="530"></canvas>
     <br />
-    <button type="button" onclick="UpdateBoard('@id', '@(Model.FileName)')">Update</button>    
+    <button type="button" onclick="UpdateBoard('@id', '@(Model.FileName)')">Refresh</button>
 </div>
 
 <script type="text/javascript" src="~/Scripts/gomoku.canvas.js"></script>
 <script type="text/javascript">
-    
+
     var stones = [];
     @for (int i = 0; i < Model.Moves.Length; i++)
     {
@@ -62,12 +64,53 @@
         var canvas = document.getElementById(id, filename);
 
         var jsonQuery = {};
-        jsonQuery.tournamentMatch = filename;          
+        jsonQuery.tournamentMatch = filename;
         $.getJSON("MatchJSON", jsonQuery, function( data ) {
-        
-            board = data;            
-            DrawGomoku(canvas, board, drawSettings);    
-        });  
+
+            board = data;
+            DrawGomoku(canvas, board, drawSettings);
+        });
     }
+
+    var socketUrl = '/api/matchsocket';
+
+    var ws;
+    $().ready(function () {
+        $('@(status)').text("connecting");
+        ws = new WebSocket("ws://" + window.location.hostname + ':' + window.location.port + socketUrl);
+
+        ws.onopen = function () {
+            $('@(status)').text("connected");
+
+            if (ws.readyState == WebSocket.OPEN) {
+                ws.send('I am connected ' + @(board).FileName);
+            }
+            else {
+                $('@(status)').text("Connection is closed");
+            }
+        };
+        ws.onmessage = function (evt) {
+            alert(evt.data);
+            $('@(status)').text(evt.data);
+        };
+        ws.onerror = function (evt) {
+            $('@(status)').text(evt.message);
+        };
+        ws.onclose = function () {
+            $('@(status)').text("disconnected");
+        };
+
+        @*$("#btnSend").click(function () {
+            if (ws.readyState == WebSocket.OPEN) {
+                ws.send($("#textInput").val());
+            }
+            else {
+                $('@(status)').text("Connection is closed");
+            }
+        });*@
+        $("#btnDisconnect").click(function () {
+            ws.close();
+        });
+    });
 
 </script>

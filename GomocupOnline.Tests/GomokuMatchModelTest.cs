@@ -20,7 +20,7 @@ namespace GomocupOnline.Tests
             Assert.AreEqual("pisq7.exe", match.Player1);
             Assert.AreEqual("renjusolver.ZIP", match.Player2);
 
-            Assert.AreEqual(16, match.Moves.Count);
+            Assert.AreEqual(16, match.Moves.Length);
 
             Assert.AreEqual(10, match.Moves[0].X);
             Assert.AreEqual(10, match.Moves[0].Y);
