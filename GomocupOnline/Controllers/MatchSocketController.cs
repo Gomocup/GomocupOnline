@@ -28,6 +28,8 @@ namespace GomocupOnline.Controllers
         static string _tournamentOnlinePath;
         static string[] _ext = new string[] {".psq", ".html", ".txt" };
 
+        const int maxReceiveFileSize = 200 * 1024;
+
         //static HashSet<string> _watcherDelay = new HashSet<string>();
 
         static MatchSocketController()
@@ -92,6 +94,10 @@ namespace GomocupOnline.Controllers
             }
         }    
 
+        /// <summary>
+        /// socket for notifications
+        /// </summary>
+        /// <returns></returns>
         public HttpResponseMessage Get()
         {
             if (HttpContext.Current.IsWebSocketRequest)
@@ -101,19 +107,21 @@ namespace GomocupOnline.Controllers
             return new HttpResponseMessage(System.Net.HttpStatusCode.SwitchingProtocols);
         }
 
-        public HttpResponseMessage Put()
+        /// <summary>
+        /// socket for uploads
+        /// </summary>
+        /// <param name="id">uploader id</param>
+        /// <returns></returns>
+        public HttpResponseMessage Get(string id)
         {
+            Trace.WriteLine("uploader id = " + id);
+
             if (HttpContext.Current.IsWebSocketRequest)
             {
-                HttpContext.Current.AcceptWebSocketRequest(SaveToDisk);
+                HttpContext.Current.AcceptWebSocketRequest(UploaderSocket);
             }
             return new HttpResponseMessage(System.Net.HttpStatusCode.SwitchingProtocols);
-        }
-
-        private async Task SaveToDisk(AspNetWebSocketContext context)
-        {
-            throw new NotImplementedException();
-        }
+        }      
 
         string JsonGetMatch(string tournamentMatch)
         {
@@ -143,11 +151,50 @@ namespace GomocupOnline.Controllers
             return model;        
         }
 
+        private async Task UploaderSocket(AspNetWebSocketContext context)
+        {
+            string filename = null;
+            WebSocket socket = context.WebSocket;
+
+            while (true) //tohle je dulezite, aby se Socket nedisposoval
+            {
+
+                ArraySegment<byte> buffer = new ArraySegment<byte>(new byte[maxReceiveFileSize]);
+                WebSocketReceiveResult result = await socket.ReceiveAsync(buffer, CancellationToken.None);
+
+                if (socket.State == WebSocketState.Open)
+                {
+                    if( result.MessageType == WebSocketMessageType.Text)
+                    {
+                        filename = Encoding.UTF8.GetString(buffer.Array, 0, result.Count);
+                        Trace.WriteLine(filename);
+
+                        if (filename.Contains("..") || filename.Contains(":"))
+                            break; //bezpecnostni ochrana, aby se zapisovalo jen do podadresare
+                    }
+                    else if(result.MessageType == WebSocketMessageType.Binary)
+                    {
+                        string path = _tournamentPath + filename;
+                        using(Stream s = File.OpenWrite(path))
+                        {
+                            s.Write(buffer.Array, 0, result.Count);
+                        }                        
+                    }
+                    else
+                    {
+                        break;
+                    }                    
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+        }
+
         private async Task MatchNotify(AspNetWebSocketContext context)
         {
-            var filename = context.QueryString["match"];
-            Trace.WriteLine(filename);
-
             WebSocket socket = context.WebSocket;
             _receivers.Add(context);
 
@@ -160,22 +207,8 @@ namespace GomocupOnline.Controllers
                 ArraySegment<byte> buffer = new ArraySegment<byte>(new byte[1024]);
                 WebSocketReceiveResult result = await socket.ReceiveAsync(buffer, CancellationToken.None);
 
-                if (socket.State == WebSocketState.Open)
-                {
-                    string userMessage = Encoding.UTF8.GetString(buffer.Array, 0, result.Count);
-
-                    //userMessage = "You sent: " + userMessage + " at " + DateTime.Now.ToLongTimeString();
-
-                    string jsonMatch = JsonGetMatch(filename);
-
-                    buffer = new ArraySegment<byte>(Encoding.UTF8.GetBytes(jsonMatch));
-
-                    await socket.SendAsync(buffer, WebSocketMessageType.Text, true, CancellationToken.None);
-                }
-                else
-                {
-                    break;
-                }
+                //zadnou zpravu necekam, na tento socket jen posilam, ale nechavam ho otevreny
+                break;
             }
         }
 
