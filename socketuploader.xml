@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<config>
+  <url>ws://localhost:58660/api/matchsocket/get/client1</url>
+  <items>   
+     <item>
+      <source>d:\projekty\gomocup2014\clients\core1\tmp\tmp_0x1.psq</source>
+      <target>client1.psq</target>
+    </item>
+    
+  </items>
+</config>
+
+
+
