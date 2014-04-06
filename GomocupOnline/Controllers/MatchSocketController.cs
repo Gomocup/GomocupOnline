@@ -26,7 +26,7 @@ namespace GomocupOnline.Controllers
 
         static string _tournamentPath;
         static string _tournamentOnlinePath;
-        static string[] _ext = new string[] {".psq", ".html", ".txt" };
+        static string[] _ext = new string[] { ".psq", ".html", ".txt" };
 
         const int maxReceiveFileSize = 200 * 1024;
 
@@ -80,19 +80,19 @@ namespace GomocupOnline.Controllers
 
             if (_ext.Any(extension => path.EndsWith(extension)))
             {
-                if (path.StartsWith(_tournamentOnlinePath))
+                if (path.StartsWith(_tournamentPath))
                 {
                     try
                     {
                         SendToAll(path);
                     }
-                    catch(Exception ex)
+                    catch (Exception ex)
                     {
                         Trace.WriteLine(ex);
                     }
                 }
             }
-        }    
+        }
 
         /// <summary>
         /// socket for notifications
@@ -121,7 +121,7 @@ namespace GomocupOnline.Controllers
                 HttpContext.Current.AcceptWebSocketRequest(UploaderSocket);
             }
             return new HttpResponseMessage(System.Net.HttpStatusCode.SwitchingProtocols);
-        }      
+        }
 
         string JsonGetMatch(string tournamentMatch)
         {
@@ -133,14 +133,14 @@ namespace GomocupOnline.Controllers
             model.FileName = tournamentMatch.Replace("\\", "\\\"");
 
             JavaScriptSerializer js = new JavaScriptSerializer();
-            return js.Serialize(model);            
+            return js.Serialize(model);
         }
 
         static ResultTable JsonResultTableModel(string path)
         {
             ResultTable model = new ResultTable();
 
-            string dir = Path.GetDirectoryName(path);            
+            string dir = Path.GetDirectoryName(path);
             model.FileName = Path.GetFileName(dir);
 
             string html = File.ReadAllText(path);
@@ -148,7 +148,7 @@ namespace GomocupOnline.Controllers
             int end = html.IndexOf("</BODY>");
             model.Table = html.Substring(start, end - start);
 
-            return model;        
+            return model;
         }
 
         private async Task UploaderSocket(AspNetWebSocketContext context)
@@ -160,11 +160,14 @@ namespace GomocupOnline.Controllers
             {
 
                 ArraySegment<byte> buffer = new ArraySegment<byte>(new byte[maxReceiveFileSize]);
+
+                SendAllData(context);
+
                 WebSocketReceiveResult result = await socket.ReceiveAsync(buffer, CancellationToken.None);
 
                 if (socket.State == WebSocketState.Open)
                 {
-                    if( result.MessageType == WebSocketMessageType.Text)
+                    if (result.MessageType == WebSocketMessageType.Text)
                     {
                         filename = Encoding.UTF8.GetString(buffer.Array, 0, result.Count);
                         Trace.WriteLine(filename);
@@ -172,18 +175,21 @@ namespace GomocupOnline.Controllers
                         if (filename.Contains("..") || filename.Contains(":"))
                             break; //bezpecnostni ochrana, aby se zapisovalo jen do podadresare
                     }
-                    else if(result.MessageType == WebSocketMessageType.Binary)
+                    else if (result.MessageType == WebSocketMessageType.Binary)
                     {
-                        string path = _tournamentPath + filename;
-                        using(Stream s = File.OpenWrite(path))
+                        if (filename.EndsWith(".psq") || filename.EndsWith(".txt"))
                         {
-                            s.Write(buffer.Array, 0, result.Count);
-                        }                        
+                            string path = _tournamentOnlinePath + "\\" + filename;
+                            using (Stream s = File.OpenWrite(path))
+                            {
+                                s.Write(buffer.Array, 0, result.Count);
+                            }
+                        }                       
                     }
                     else
                     {
                         break;
-                    }                    
+                    }
                 }
                 else
                 {
@@ -202,7 +208,7 @@ namespace GomocupOnline.Controllers
 
             //return;
             while (true) //tohle je dulezite, aby se Socket nedisposoval
-            {               
+            {
 
                 ArraySegment<byte> buffer = new ArraySegment<byte>(new byte[1024]);
                 WebSocketReceiveResult result = await socket.ReceiveAsync(buffer, CancellationToken.None);
@@ -216,7 +222,7 @@ namespace GomocupOnline.Controllers
         private static void SendToAll(string path)
         {
             AspNetWebSocketContext[] receivers = _receivers.ToArray();
-            
+
             ArraySegment<byte>? buffer = CreateObjectBuffer(path);
             if (buffer == null)
                 return;
@@ -238,7 +244,7 @@ namespace GomocupOnline.Controllers
         {
             var files = Directory.EnumerateFiles(_tournamentOnlinePath, "*.psq", SearchOption.AllDirectories).ToList();
 
-            files.AddRange(Directory.EnumerateFiles(_tournamentPath, "*.html", SearchOption.AllDirectories));            
+            files.AddRange(Directory.EnumerateFiles(_tournamentPath, "*.html", SearchOption.AllDirectories));
 
             foreach (var file in files)
             {
@@ -259,11 +265,11 @@ namespace GomocupOnline.Controllers
                     }
 
                 }
-                catch(Exception ex)
+                catch (Exception ex)
                 {
                     Trace.WriteLine(ex);
                     continue;
-                }              
+                }
             }
         }
 
@@ -294,6 +300,6 @@ namespace GomocupOnline.Controllers
             return new ArraySegment<byte>(Encoding.UTF8.GetBytes(json));
         }
 
-       
+
     }
 }

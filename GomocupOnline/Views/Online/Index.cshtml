@@ -46,21 +46,19 @@
 
     function GetOrCreateTable(filename)
     {
-        var divTable = $('#tabContent').children("div[data-filename='" + filename + "']");
+        var divTable = $('#' + filename);
         if (divTable.length > 0)
             return divTable;
 
         //http://jqueryui.com/tabs/
 
         divTable = $('<div/>');
-        //divTable.css('width', '100%');
-        divTable.attr('data-filename', filename);
         divTable.attr('id', filename);
         divTable.attr('class', 'tabContent');       
 
         tabs = $('#tabs');      
         a = $('<a/>');     
-        a.attr('data-toggle', filename);
+        a.attr('id', filename);
         a.text(filename);        
         tabs.append(a);
 
@@ -103,7 +101,7 @@
                 var canvas = GetOrCreateCanvas(board.FileName);
                 DrawGomoku(canvas, board, drawSettings);
             }
-            if( received.Table) //it is result table
+            else if( received.Table) //it is result table
             {
                 var table = received;
                 var container = GetOrCreateTable(table.FileName);
