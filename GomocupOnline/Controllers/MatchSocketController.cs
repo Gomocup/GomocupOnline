@@ -21,7 +21,9 @@ namespace GomocupOnline.Controllers
     {
         static List<AspNetWebSocketContext> _receivers = new List<AspNetWebSocketContext>();
 
-        static FileSystemWatcher _watcher;
+        static FileSystemWatcher _watcherOnline;
+        static FileSystemWatcher _watcherTables;
+
         static string _tournamentPath;
         static string _tournamentOnlinePath;
         static string[] _ext = new string[] {".psq", ".html", ".txt" };
@@ -34,11 +36,20 @@ namespace GomocupOnline.Controllers
             _tournamentPath = Path.Combine(path, "Tournaments").ToLower();
             _tournamentOnlinePath = Path.Combine(_tournamentPath, "online");
 
-            _watcher = new FileSystemWatcher(_tournamentPath);
-            _watcher.Changed += _watcher_Changed;
-            _watcher.IncludeSubdirectories = true;
-            _watcher.NotifyFilter = NotifyFilters.LastWrite;
-            _watcher.EnableRaisingEvents = true;
+            _watcherOnline = new FileSystemWatcher(_tournamentOnlinePath);
+            _watcherOnline.Changed += _watcher_Changed;
+            _watcherOnline.Filter = "*.psq";
+            _watcherOnline.IncludeSubdirectories = true;
+            _watcherOnline.NotifyFilter = NotifyFilters.LastWrite;
+
+            _watcherTables = new FileSystemWatcher(_tournamentPath);
+            _watcherTables.Changed += _watcher_Changed;
+            _watcherTables.IncludeSubdirectories = true;
+            _watcherTables.Filter = "*.html";
+            _watcherTables.NotifyFilter = NotifyFilters.LastWrite;
+
+            _watcherOnline.EnableRaisingEvents = true;
+            _watcherTables.EnableRaisingEvents = true;
         }
 
         static void _watcher_Changed(object sender, FileSystemEventArgs e)
@@ -88,6 +99,20 @@ namespace GomocupOnline.Controllers
                 HttpContext.Current.AcceptWebSocketRequest(MatchNotify);
             }
             return new HttpResponseMessage(System.Net.HttpStatusCode.SwitchingProtocols);
+        }
+
+        public HttpResponseMessage Put()
+        {
+            if (HttpContext.Current.IsWebSocketRequest)
+            {
+                HttpContext.Current.AcceptWebSocketRequest(SaveToDisk);
+            }
+            return new HttpResponseMessage(System.Net.HttpStatusCode.SwitchingProtocols);
+        }
+
+        private async Task SaveToDisk(AspNetWebSocketContext context)
+        {
+            throw new NotImplementedException();
         }
 
         string JsonGetMatch(string tournamentMatch)
@@ -178,11 +203,9 @@ namespace GomocupOnline.Controllers
 
         private void SendAllData(AspNetWebSocketContext socketcontext)
         {
-            //string[] allPsq = Directory.GetFiles(_tournamentOnlinePath, "*.psq", SearchOption.AllDirectories);
+            var files = Directory.EnumerateFiles(_tournamentOnlinePath, "*.psq", SearchOption.AllDirectories).ToList();
 
-            var files = Directory.EnumerateFiles(_tournamentOnlinePath, "*.*", SearchOption.AllDirectories)
-            .Where(s => _ext.Any(extension => s.ToLower().EndsWith(extension))).ToArray();
-
+            files.AddRange(Directory.EnumerateFiles(_tournamentPath, "*.html", SearchOption.AllDirectories));            
 
             foreach (var file in files)
             {
