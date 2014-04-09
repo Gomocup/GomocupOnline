@@ -10,9 +10,13 @@ namespace GomocupOnline.Controllers
 {
     public class TournamentController : Controller
     {
-        //
-        // GET: /Tournament/
-        public ActionResult Tournaments()
+        
+        public ActionResult Schedule()
+        {
+            return View();
+        }
+
+        public ActionResult Results()
         {
             string path = AppDomain.CurrentDomain.GetData("DataDirectory").ToString();
             path = Path.Combine(path, "Tournaments");

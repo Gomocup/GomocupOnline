@@ -25,7 +25,7 @@ namespace SocketUploader
 
         void watcher_Changed(object sender, FileSystemEventArgs e)
         {
-            Thread.Sleep(200);
+            Thread.Sleep(50);
 
             string source = e.FullPath.ToLower();
             string target = _config.Items
@@ -35,7 +35,21 @@ namespace SocketUploader
 
             try
             {
-                BinaryData data = new BinaryData(source);
+                BinaryData data = null;
+
+                //mutex, ktery pouziva piskvorkna ukladani psq
+                using (Mutex mutex = new Mutex(false, @"Global\" + source.ToLower().Replace('\\',':')))
+                {
+                    if (mutex.WaitOne(500, false))
+                    {
+                        data = new BinaryData(source);
+                    }                   
+                    else
+                    {
+                        Trace.WriteLine("Mutex timeout to  " + source);
+                        return;
+                    }
+                }                
 
                 Trace.WriteLine("Sending " + source + " as " + target);
                 _client.Send(target);

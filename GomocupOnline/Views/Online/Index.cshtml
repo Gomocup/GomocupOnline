@@ -1,5 +1,4 @@
-﻿
-@{
+﻿@{
     ViewBag.Title = "Index";
     Layout = "~/Views/Shared/_Layout.cshtml";
 }
@@ -14,14 +13,14 @@
 <br />
 
 <div id="boards" style="width:100%"></div>
-<div id="tables" style="width:100%" class="tabs">
+<div id="tables" style="width:100%">
     <div class="tabs" id="tabs">
     </div>
     <div class="tabContent" id="tabContent">
     </div>
-    </div>
+</div>
 
-<script type="text/javascript">      
+<script type="text/javascript">
 
     var socketUrl = '/api/matchsocket/get';
     var drawSettings = { lineWidth: 0.5 };
@@ -35,17 +34,16 @@
             return canvas[0];
 
         canvas = $('<canvas/>');
-        canvas.css('padding','5px');
+        canvas.css('padding', '5px');
         canvas.attr('width', canvasWidth);
         canvas.attr('height', canvasHeight);
-        canvas.attr('data-filename', filename);       
+        canvas.attr('data-filename', filename);
 
         $('#boards').append(canvas);
         return canvas[0];
     }
 
-    function GetOrCreateTable(filename)
-    {
+    function GetOrCreateTable(filename) {
         var divTable = $('#' + filename);
         if (divTable.length > 0)
             return divTable;
@@ -54,12 +52,12 @@
 
         divTable = $('<div/>');
         divTable.attr('id', filename);
-        divTable.attr('class', 'tabContent');       
+        divTable.attr('class', 'tabContent');
 
-        tabs = $('#tabs');      
-        a = $('<a/>');     
-        a.attr('id', filename);
-        a.text(filename);        
+        tabs = $('#tabs');
+        a = $('<a/>');
+        a.attr('data-toggle', filename);
+        a.text(filename);
         tabs.append(a);
 
         $('#tabContent').append(divTable);
@@ -70,8 +68,7 @@
     }
 
     var ws;
-    function Reconnect()
-    {
+    function Reconnect() {
         if (ws)
             ws.close();
 
@@ -99,9 +96,9 @@
             {
                 var board = received;
                 var canvas = GetOrCreateCanvas(board.FileName);
-                DrawGomoku(canvas, board, drawSettings);
+                DrawGomoku(canvas, board, drawSettings, board.Moves.length);
             }
-            else if( received.Table) //it is result table
+            else if (received.Table) //it is result table
             {
                 var table = received;
                 var container = GetOrCreateTable(table.FileName);
@@ -115,7 +112,7 @@
 
         ws.onclose = function () {
             $('#status').text("Disconnected");
-            $('#status').css('color','red');
+            $('#status').css('color', 'red');
             ReconnectAfterTimeout();
         };
 
@@ -124,11 +121,10 @@
         //});
     }
 
-    function ReconnectAfterTimeout()
-    {
+    function ReconnectAfterTimeout() {
         setTimeout(function () { Reconnect(); }, reconnectTimeout);
     }
-    
+
     $().ready(function () {
         Reconnect();
     });

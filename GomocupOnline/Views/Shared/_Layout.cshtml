@@ -31,11 +31,13 @@
             <div class="collapse navbar-collapse" id="bs-example-navbar-collapse-1">
                 <ul class="nav navbar-nav">
                     <li><a href="http://Gomocup.org">Gomocup.org</a></li>
-                    <li><a href="mailto:gomocup@gmail.com">Email</a></li>                  
-                </ul>              
+                    <li><a href="mailto:gomocup@gmail.com">Email</a></li>
+                    <li>@Html.ActionLink("Results", "Results", "Tournament")</li>
+                    <li>@Html.ActionLink("Schedule", "Schedule", "Tournament")</li>
+                </ul>
             </div><!-- /.navbar-collapse -->
         </div>
-    </nav>   
+    </nav>
 
     <script type="text/javascript">
         function isCanvasSupported() {
@@ -58,7 +60,7 @@
 
     <script src="~/Scripts/bootstrap.min.js"></script>
     <script src="~/Scripts/html5jtabs.js"></script>
-    <script>
+    <script type="text/javascript">
         $(function () {
             $(".tabs a").html5jTabs();
         });

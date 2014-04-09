@@ -24,23 +24,32 @@
 
 <h2>@Model.Player1 vs @Model.Player2</h2>
 
-<div>
-    <span id="@status">no status</span><br />
+<div>    
     <canvas id="@id" width="500" height="530"></canvas>
     <br />
-    <button type="button" onclick="UpdateBoard('@id', '@(Model.FileName)')">Refresh</button>
+    @*<button type="button" onclick="UpdateBoard('@id', '@(Model.FileName)')">Refresh</button>*@
+    <button type="button" onclick="ReplayStart()">Replay</button>
+        
+    <button type="button" onclick="First()">&lt;&lt;</button>
+    <button type="button" onclick="Prev()">&lt;</button>
+    <button type="button" onclick="Pause()">&#124;&#124;</button>
+    <button type="button" onclick="Continue()">&#9658;</button>
+    <button type="button" onclick="Next()">&gt;</button>
+    <button type="button" onclick="Last()">&gt;&gt;</button>
 </div>
 
 <script type="text/javascript" src="~/Scripts/gomoku.canvas.js"></script>
 <script type="text/javascript">
 
     var stones = [];
+    var replayPauseMs = 500;
+
     @for (int i = 0; i < Model.Moves.Length; i++)
     {
         @Html.Raw("    stones.push({X:" + Model.Moves[i].X + ",Y:" + Model.Moves[i].Y + ",DurationMS:" + Model.Moves[i].DurationMS + "});\r\n");
     }
 
-    var @(board) = {
+    var board = {
         Width : @(Model.Width),
         Height : @(Model.Height),
         Moves: stones,
@@ -54,12 +63,18 @@
         lineWidth: 0.5,
     };
 
+    var id = '@id';
+    var filename = '@(Model.FileName)';
 
-    var @(canvas) = document.getElementById('@id');
 
-    DrawGomoku(@(canvas), @(board), drawSettings);
+    var canvas = document.getElementById(id);
 
-    function UpdateBoard(id, filename)
+    var moveIndex = board.Moves.length;
+    var pause = true;
+
+    DrawGomoku(canvas, board, drawSettings, moveIndex);
+
+    function UpdateBoard()
     {
         var canvas = document.getElementById(id, filename);
 
@@ -68,15 +83,92 @@
         $.getJSON("MatchJSON", jsonQuery, function( data ) {
 
             board = data;
-            DrawGomoku(canvas, board, drawSettings);
+            DrawGomoku(canvas, board, drawSettings, board.Moves.length);
         });
     }
 
-    var socketUrl = '/api/matchsocket?match=' + '@(Model.FileName)';
+    function Replay()
+    {
+        var canvas = document.getElementById(id, filename);
+
+        var jsonQuery = {};
+        jsonQuery.tournamentMatch = filename;
+
+        DrawGomoku(canvas, board, drawSettings, moveIndex);
+
+        if(pause || moveIndex >= board.Moves.length)
+            return; //end of replay
+
+        setTimeout(function ()
+        {
+            if(pause)
+                return;
+
+            moveIndex = moveIndex+ 1;
+            Replay();
+        },
+        replayPauseMs);
+    }
+
+    function Pause()
+    {       
+        pause = true;
+    }
+
+    function Continue()
+    {
+        if(moveIndex == board.Moves.length)
+            moveIndex = 1;
+        pause = false;
+        Replay();
+    }
+
+    function Last()
+    {
+        moveIndex =  board.Moves.length;
+        pause = true;
+        Replay();
+    }
+
+    function First()
+    {
+        moveIndex =  1;
+        pause = true;
+        Replay();
+    }
+
+    function Next()
+    {
+        pause = true;
+        if( moveIndex < board.Moves.length )
+        {
+            moveIndex = moveIndex +  1;    
+            Replay();
+        }
+    }
+
+    function Prev()
+    {
+        pause = true;
+        if( moveIndex > 0)
+        {
+            moveIndex = moveIndex -  1;       
+            Replay();
+        }
+    }
+
+    function ReplayStart()
+    {
+        moveIndex = 1;
+        pause = false;
+        Replay();
+    }
+
+    @*var socketUrl = '/api/matchsocket?match=' + '@(Model.FileName)';
 
     var ws;
     $().ready(function () {
-       
+
         $('@(status)').text("connecting");
         ws = new WebSocket("ws://" + window.location.hostname + ':' + window.location.port + socketUrl);
 
@@ -90,9 +182,9 @@
                 $('@(status)').text("Connection is closed");
             }
         };
-        ws.onmessage = function (evt) {           
+        ws.onmessage = function (evt) {
             var board = JSON.parse(evt.data);
-            DrawGomoku(@(canvas), board, drawSettings);
+            DrawGomoku(@(canvas), board, drawSettings, board.Moves.length);
         };
         ws.onerror = function (evt) {
             $('@(status)').text(evt.message);
@@ -100,10 +192,10 @@
         ws.onclose = function () {
             $('@(status)').text("disconnected");
         };
-       
+
         $("#btnDisconnect").click(function () {
             ws.close();
         });
-    });
+    });*@
 
 </script>

@@ -250,7 +250,7 @@ namespace GomocupOnline.Controllers
             {
                 try
                 {
-                    ArraySegment<byte>? buffer = CreateObjectBuffer(file);
+                    ArraySegment<byte>? buffer = CreateObjectBuffer(file.ToLower());
                     if (buffer == null)
                         continue;
 

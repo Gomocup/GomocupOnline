@@ -104,6 +104,7 @@
     <Content Include="Scripts\jquery.validate.min.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.js" />
     <Content Include="Scripts\jquery.validate.unobtrusive.min.js" />
+    <Content Include="TODO.txt" />
     <Content Include="Web.config" />
     <Content Include="Scripts\jquery-2.1.0.min.map" />
     <Content Include="Views\_ViewStart.cshtml" />
@@ -130,10 +131,11 @@
   <ItemGroup>
     <Content Include="Views\web.config" />
     <Content Include="packages.config" />
-    <Content Include="Views\Tournament\Tournaments.cshtml" />
+    <Content Include="Views\Tournament\Results.cshtml" />
     <Content Include="Views\Tournament\Matches.cshtml" />
     <Content Include="Views\Tournament\Match.cshtml" />
     <Content Include="Views\Online\Index.cshtml" />
+    <Content Include="Views\Tournament\Schedule.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>

@@ -14,7 +14,7 @@
     return result;
 }
 
-function DrawGomoku(canvas, board, drawSettings)
+function DrawGomoku(canvas, board, drawSettings, moveIndexTo)
 {
     var colorPlayer1 = 'white';
     var colorPlayer2 = 'black';
@@ -52,7 +52,7 @@ function DrawGomoku(canvas, board, drawSettings)
     context.stroke();
 
     //last stone
-    if (board.Moves.length > 0) {
+    if (moveIndexTo > 0 && moveIndexTo == board.Moves.length) {
         var last = board.Moves.length - 1;
         var x = (board.Moves[last].X - 1) * squareSizeX + 1;
         var y = (board.Moves[last].Y - 1) * squareSizeY + 1;
@@ -68,7 +68,7 @@ function DrawGomoku(canvas, board, drawSettings)
 
     var durationTotalMs = 0;
 
-    for (var i = 0; i < board.Moves.length; i += 1) {
+    for (var i = 0; i < moveIndexTo; i += 1) {
         var x = board.Moves[i].X * squareSizeX - squareSizeX / 2 + 1;
         var y = board.Moves[i].Y * squareSizeY - squareSizeY / 2 + 1;
 
@@ -124,7 +124,7 @@ function DrawGomoku(canvas, board, drawSettings)
 
     //moves, duration
     context.textAlign = 'center';
-    var info = 'mov.: ' + board.Moves.length + ', dur.: ' + FormatMiliseconds(durationTotalMs);
+    var info = 'mov.: ' + moveIndexTo + ', dur.: ' + FormatMiliseconds(durationTotalMs);
     context.fillText(info, (blackCenterX + whiteCenterX) / 2, whiteCenterY + fontSize / 2);
 
 }
