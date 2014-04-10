@@ -43,3 +43,13 @@
 	background-color: #E0E0E0;
 }
 
+label {
+    display: block;
+    font-size: 1.2em;
+    font-weight: 600;
+    width:120px;
+}
+
+label.checkbox {
+    display: inline;
+}

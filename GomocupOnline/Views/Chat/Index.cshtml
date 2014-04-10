@@ -4,10 +4,12 @@
 }
 <h2>Chat</h2>
 <div class="container">
-    <input type="text" id="message" />
+
+    <label for="displayname">Your name:</label><input type="text" name="displayname" id="displayname" /><br />
+    <label for="message">Message:</label><input type="text" name="message" id="message" maxlength="100" />
     <input type="button" id="sendmessage" value="Send" />
-    <input type="hidden" id="displayname" />
-    <ul id="discussion"></ul>
+
+    <div id="discussion" style="width: 100%; height: 200px; overflow: scroll; border: 1px solid grey"></div>            
 </div>
 @section scripts {
     <!--Script references. -->
@@ -18,22 +20,64 @@
     <script src="~/signalr/hubs"></script>
     <!--SignalR script to update the chat page and send messages.-->
     <script>
+        
+        function createCookie(name, value, days) {
+            var expires;
+
+            if (days) {
+                var date = new Date();
+                date.setTime(date.getTime() + (days * 24 * 60 * 60 * 1000));
+                expires = "; expires=" + date.toGMTString();
+            } else {
+                expires = "";
+            }
+            document.cookie = escape(name) + "=" + escape(value) + expires + "; path=/";
+        }
+
+        function readCookie(name) {
+            var nameEQ = escape(name) + "=";
+            var ca = document.cookie.split(';');
+            for (var i = 0; i < ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0) === ' ') c = c.substring(1, c.length);
+                if (c.indexOf(nameEQ) === 0) return unescape(c.substring(nameEQ.length, c.length));
+            }
+            return null;
+        }       
+
         $(function () {
+
+            var cookieValue = readCookie('displayname');
+            if (cookieValue) {
+                $('#displayname').val(cookieValue);
+            }
+
             // Reference the auto-generated proxy for the hub.
             var chat = $.connection.chatHub;
             // Create a function that the hub can call back to display messages.
             chat.client.addNewMessageToPage = function (name, message) {
                 // Add the message to the page.
-                $('#discussion').append('<li><strong>' + htmlEncode(name)
-                    + '</strong>: ' + htmlEncode(message) + '</li>');
+                $('#discussion').append('<strong>' + htmlEncode(name)
+                    + '</strong>: ' + htmlEncode(message) + '<br />');
+
+                $("#discussion").animate({ scrollTop: $(document).height() }, "slow");
             };
-            // Get the user name and store it to prepend to messages.
-            $('#displayname').val(prompt('Enter your name:', ''));
+            
             // Set initial focus to message input box.
             $('#message').focus();
             // Start the connection.
-            $.connection.hub.start().done(function () {
+            $.connection.hub.start().done(function () {               
                 $('#sendmessage').click(function () {
+
+                    if (!$('#displayname').val()) {
+                        // Get the user name and store it to prepend to messages.
+                        $('#displayname').val(prompt('Enter your name:', ''));
+
+                        if (!$('#displayname').val())
+                            return;                        
+                    }
+                    createCookie('displayname', $('#displayname').val(), 7);
+
                     // Call the Send method on the hub.
                     chat.server.send($('#displayname').val(), $('#message').val());
                     // Clear text box and reset focus for next comment.
