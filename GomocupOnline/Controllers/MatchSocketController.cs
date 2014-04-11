@@ -219,7 +219,7 @@ namespace GomocupOnline.Controllers
         }
 
 
-        private static void SendToAll(string path)
+        private static async Task SendToAll(string path)
         {
             AspNetWebSocketContext[] receivers = _receivers.ToArray();
 
@@ -227,17 +227,22 @@ namespace GomocupOnline.Controllers
             if (buffer == null)
                 return;
 
-            foreach (AspNetWebSocketContext listener in receivers)
-            {
+            Task[] task = new Task[receivers.Length];
+
+            for (int i = 0; i < receivers.Length; i++)
+			{
+                AspNetWebSocketContext listener = receivers[i];
                 try
                 {
-                    listener.WebSocket.SendAsync(buffer.Value, WebSocketMessageType.Text, true, CancellationToken.None);
+                    task[i] = listener.WebSocket.SendAsync(buffer.Value, WebSocketMessageType.Text, true, CancellationToken.None);
                 }
                 catch
                 {
                     _receivers.Remove(listener);
                 }
-            }
+
+			}
+            await Task.WhenAll(task);
         }
 
         private async Task SendAllData(AspNetWebSocketContext socketcontext)
