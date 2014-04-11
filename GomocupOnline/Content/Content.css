@@ -53,3 +53,12 @@ label {
 label.checkbox {
     display: inline;
 }
+
+.chatwrapper{  
+    width: 100%;
+    border: 1px solid grey; 
+}
+
+.chat{
+
+}
