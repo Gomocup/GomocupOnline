@@ -242,7 +242,7 @@ namespace GomocupOnline.Controllers
 
         private void SendAllData(AspNetWebSocketContext socketcontext)
         {
-            var files = Directory.EnumerateFiles(_tournamentOnlinePath, "*.psq", SearchOption.AllDirectories).ToList();
+            var files = Directory.EnumerateFiles(_tournamentOnlinePath, "*.psq", SearchOption.AllDirectories).Reverse().ToList();
 
             files.AddRange(Directory.EnumerateFiles(_tournamentPath, "*.html", SearchOption.AllDirectories));
 

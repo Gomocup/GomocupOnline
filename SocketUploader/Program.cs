@@ -33,7 +33,7 @@ namespace SocketUploader
             client.Open();
 
             //z nejakeho dovdotu nedostanu udalost OnOpen, ale nemohu hned posilat, pripojeni chviku trva
-            Thread.Sleep(500);
+            Thread.Sleep(1000);
 
             Notifier notifier = new Notifier(config, client);
             notifier.RunAsync();

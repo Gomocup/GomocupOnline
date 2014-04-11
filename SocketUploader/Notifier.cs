@@ -58,17 +58,19 @@ namespace SocketUploader
             }
             catch(IOException ex)
             {
-                Trace.WriteLine("reading file failed");
+                Trace.WriteLine(DateTime.Now + " reading file failed");
 
                 Trace.WriteLine(ex.Message);
             }      
             catch(Exception)
             {
-                Trace.WriteLine("sending file failed");
+                Trace.WriteLine(DateTime.Now + " sending file failed");
 
                 try
                 {
-                    _client.Open();
+                    _client = new XSocketClient(_config.Url, "*");
+                    Thread.Sleep(1000);
+                    _client.Open();                    
                 }
                 catch
                 {

@@ -6,6 +6,7 @@ namespace GomocupOnline.Tests
 {
     [TestClass]
     [DeploymentItem(@"..\..\TestData\1x0-16(2).psq")]
+    [DeploymentItem(@"..\..\TestData\0x1-19(1).psq")]
     public class GomokuMatchModelTest
     {
         [TestMethod]
@@ -17,8 +18,8 @@ namespace GomocupOnline.Tests
             Assert.AreEqual(20, match.Width);
             Assert.AreEqual(20, match.Height);
             Assert.AreEqual(0, match.Result);
-            Assert.AreEqual("pisq7.exe", match.Player1);
-            Assert.AreEqual("renjusolver.ZIP", match.Player2);
+            Assert.AreEqual("pisq7", match.Player1);
+            Assert.AreEqual("renjusolver", match.Player2);
 
             Assert.AreEqual(16, match.Moves.Length);
 
@@ -34,5 +35,16 @@ namespace GomocupOnline.Tests
             Assert.AreEqual(12, match.Moves[15].Y);
             Assert.AreEqual(32, match.Moves[15].DurationMS);
         }
+
+         [TestMethod]
+        public void TestGomokuMatchModeParse2()
+        {
+            GomokuMatchModel match = new GomokuMatchModel(@"0x1-19(1).psq");
+
+            Assert.AreEqual("sWINe13", match.Player1);
+            Assert.AreEqual("pela", match.Player2);
+        }
+
+        
     }
 }

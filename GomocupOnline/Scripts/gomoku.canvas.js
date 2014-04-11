@@ -16,8 +16,8 @@
 
 function DrawGomoku(canvas, board, drawSettings, moveIndexTo)
 {
-    var colorPlayer1 = 'white';
-    var colorPlayer2 = 'black';
+    var colorPlayer1 = 'black';
+    var colorPlayer2 = 'white';
     var stoneStroke = 'black';
     var footerBackground = '#DDDDE6';
     var footerMargin = 2;
@@ -94,7 +94,7 @@ function DrawGomoku(canvas, board, drawSettings, moveIndexTo)
 
     context.beginPath();
     context.arc(whiteCenterX, whiteCenterY, radius, 0, 2 * Math.PI, false);
-    context.fillStyle = stoneColors[0];
+    context.fillStyle = colorPlayer2;
     context.fill();
     context.lineWidth = drawSettings.lineWidth;
     context.strokeStyle = stoneStroke;
@@ -107,20 +107,22 @@ function DrawGomoku(canvas, board, drawSettings, moveIndexTo)
 
     context.beginPath();
     context.arc(blackCenterX, blackcenterY, radius, 0, 2 * Math.PI, false);
-    context.fillStyle = stoneColors[1];
+    context.fillStyle = colorPlayer1;
     context.fill();
+
     context.lineWidth = drawSettings.lineWidth;
     context.strokeStyle = stoneStroke;
     context.stroke();
 
     var fontSize = 12;
 
+    context.fillStyle = stoneStroke;
     context.font = 'bold ' + fontSize + 'px sans-serif';
     context.textAlign = 'left';
-    context.fillText(board.Player1, whiteCenterX + squareSizeX, whiteCenterY + fontSize / 2);
+    context.fillText(board.Player2, whiteCenterX + squareSizeX, whiteCenterY + fontSize / 2);
 
     context.textAlign = 'right';
-    context.fillText(board.Player2, blackCenterX - squareSizeX, blackcenterY + fontSize / 2);
+    context.fillText(board.Player1, blackCenterX - squareSizeX, blackcenterY + fontSize / 2);
 
     //moves, duration
     context.textAlign = 'center';

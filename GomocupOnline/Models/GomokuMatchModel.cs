@@ -39,7 +39,8 @@ namespace GomocupOnline.Models
 
                 while ((line = reader.ReadLine()) != null)
                 {
-                    lines.Add(line);
+                    if (line.Trim().Length > 0)
+                        lines.Add(line);
                 }
 
             }
@@ -83,6 +84,7 @@ namespace GomocupOnline.Models
 
                     string pbrain = "pbrain-";
                     string exe = ".exe";
+                    string zip = ".zip";
 
                     if (Player1.ToLower().StartsWith(pbrain))
                     {
@@ -92,6 +94,10 @@ namespace GomocupOnline.Models
                     {
                         Player1 = Player1.Substring(0, Player1.Length - exe.Length);
                     }
+                    else if (Player1.ToLower().EndsWith(zip))
+                    {
+                        Player1 = Player1.Substring(0, Player1.Length - zip.Length);
+                    }
 
                     if (Player2.ToLower().StartsWith(pbrain))
                     {
@@ -100,6 +106,10 @@ namespace GomocupOnline.Models
                     if (Player2.ToLower().EndsWith(exe))
                     {
                         Player2 = Player2.Substring(0, Player2.Length - exe.Length);
+                    }
+                    else if (Player2.ToLower().EndsWith(zip))
+                    {
+                        Player2 = Player2.Substring(0, Player2.Length - zip.Length);
                     }
                 }
             }
