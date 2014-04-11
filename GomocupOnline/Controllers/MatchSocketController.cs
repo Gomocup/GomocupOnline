@@ -180,7 +180,7 @@ namespace GomocupOnline.Controllers
                         if (filename.EndsWith(".psq") || filename.EndsWith(".txt"))
                         {
                             string path = _tournamentOnlinePath + "\\" + filename;
-                            using (Stream s = File.OpenWrite(path))
+                            using (Stream s = File.Create(path))
                             {
                                 s.Write(buffer.Array, 0, result.Count);
                             }
