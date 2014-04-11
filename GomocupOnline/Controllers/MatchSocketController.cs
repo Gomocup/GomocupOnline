@@ -161,7 +161,7 @@ namespace GomocupOnline.Controllers
 
                 ArraySegment<byte> buffer = new ArraySegment<byte>(new byte[maxReceiveFileSize]);
 
-                SendAllData(context);
+                await SendAllData(context);
 
                 WebSocketReceiveResult result = await socket.ReceiveAsync(buffer, CancellationToken.None);
 
@@ -204,7 +204,7 @@ namespace GomocupOnline.Controllers
             WebSocket socket = context.WebSocket;
             _receivers.Add(context);
 
-            SendAllData(context);
+            await SendAllData(context);
 
             //return;
             while (true) //tohle je dulezite, aby se Socket nedisposoval
@@ -240,7 +240,7 @@ namespace GomocupOnline.Controllers
             }
         }
 
-        private void SendAllData(AspNetWebSocketContext socketcontext)
+        private async Task SendAllData(AspNetWebSocketContext socketcontext)
         {
             var files = Directory.EnumerateFiles(_tournamentOnlinePath, "*.psq", SearchOption.AllDirectories).Reverse().ToList();
 
@@ -256,7 +256,7 @@ namespace GomocupOnline.Controllers
 
                     try
                     {
-                        socketcontext.WebSocket.SendAsync(buffer.Value, WebSocketMessageType.Text, true, CancellationToken.None);
+                        await socketcontext.WebSocket.SendAsync(buffer.Value, WebSocketMessageType.Text, true, CancellationToken.None);
                     }
                     catch
                     {
