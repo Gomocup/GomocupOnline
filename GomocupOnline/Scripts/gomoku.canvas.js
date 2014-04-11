@@ -127,6 +127,6 @@ function DrawGomoku(canvas, board, drawSettings, moveIndexTo)
     //moves, duration
     context.textAlign = 'center';
     var info = 'mov.: ' + moveIndexTo + ', dur.: ' + FormatMiliseconds(durationTotalMs);
-    context.fillText(info, (blackCenterX + whiteCenterX) / 2, whiteCenterY + fontSize / 2);
+    context.fillText(info, (blackCenterX + whiteCenterX) / 2, whiteCenterY + fontSize / 2 + 2 * fontSize);
 
 }
