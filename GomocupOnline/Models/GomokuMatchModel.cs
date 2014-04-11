@@ -23,6 +23,19 @@ namespace GomocupOnline.Models
 
         public int Result { get; set; }
 
+        /// <summary>
+        /// 1 - vyhrava Player1,  -1 vyhrava Player2, 0 remiza
+        /// </summary>
+        public int GetMatchResult()
+        {
+            if (Moves.Length == Width * Height)
+                return 0;
+            else if (Moves.Length % 2 == 0)
+                return -1;
+            else
+                return 1;
+        }
+
         public GomokuMatchModel(string path)
         {
             FileName = Path.GetFileName(path);
@@ -58,7 +71,7 @@ namespace GomocupOnline.Models
                     Width = int.Parse(size[0]);
                     Height = int.Parse(size[1]);
                 }
-                
+
 
                 for (int i = 1; i < lines.Count - 3; i++)
                 {
@@ -75,7 +88,7 @@ namespace GomocupOnline.Models
                     moves.Add(move);
                 }
 
-                if( lines.Count > 4 )
+                if (lines.Count > 4)
                 {
                     Player1 = lines[lines.Count - 3];
                     Player2 = lines[lines.Count - 2];

@@ -41,13 +41,24 @@ namespace GomocupOnline.Controllers
 
             string[] files = Directory.GetFiles(path, "*.psq");
 
-            GomokuMatchInfoModel[] model = files.Select(f =>
-                new GomokuMatchInfoModel()
+            GomokuMatchInfoModel[] model = new GomokuMatchInfoModel[files.Length];
+
+            for (int i = 0; i < files.Length; i++)
+            {
+                string file = files[i];
+                GomokuMatchModel matchModel = new GomokuMatchModel(file);
+
+
+                model[i] = new GomokuMatchInfoModel()
                 {
-                    FileName = tournament + "\\" + Path.GetFileName(f),
-                    LastChange = new FileInfo(f).LastWriteTime,
-                }
-                ).ToArray();
+                    FileName = tournament + "\\" + Path.GetFileName(file),
+                    LastChange = new FileInfo(file).LastWriteTime,
+                    Player1 = matchModel.Player1,
+                    Player2 = matchModel.Player2,
+                    Moves = matchModel.Moves.Length,
+                    Result = matchModel.GetMatchResult(),
+                };
+            }            
 
             return View(model);
         }

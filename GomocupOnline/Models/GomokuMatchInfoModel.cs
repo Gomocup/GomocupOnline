@@ -13,5 +13,20 @@ namespace GomocupOnline.Models
 
         [DisplayName("Match")]
         public string FileName { get; set; }
+
+        [DisplayName("Player1")]
+        public string Player1 { get; set; }
+
+        [DisplayName("Player2")]
+        public string Player2{ get; set; }
+
+        [DisplayName("Moves")]
+        public int Moves { get; set; }
+
+        /// <summary>
+        /// 1 - vyhrava Player1,  -1 vyhrava Player2, 0 remiza
+        /// </summary>
+        [DisplayName("Result")]
+        public int Result { get; set; }
     }
 }

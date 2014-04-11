@@ -17,6 +17,8 @@
     <script src="~/Scripts/jquery-2.1.0.js"></script>   
     @*<script src="~/Scripts/jquery.signalR-0.5.3.js"></script>*@
     <script src="~/Scripts/jquery.signalR-2.0.3.js"></script>
+    <script src="~/Scripts/bootstrap.min.js"></script>
+    <script src="~/Scripts/html5jtabs.js"></script>
 
     @RenderSection("scripts", required: false)
 
@@ -65,9 +67,7 @@
             <p>&copy; @DateTime.Now.Year - Gomocup</p>
         </footer>
     </div>
-
-    <script src="~/Scripts/bootstrap.min.js"></script>
-    <script src="~/Scripts/html5jtabs.js"></script>
+   
     <script type="text/javascript">
         $(function () {
             $(".tabs a").html5jTabs();

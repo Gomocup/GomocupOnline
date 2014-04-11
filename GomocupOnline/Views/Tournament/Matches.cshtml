@@ -3,6 +3,9 @@
 @{
     ViewBag.Title = "Matches";
     Layout = "~/Views/Shared/_Layout.cshtml";
+
+    var strongStart = "<strong>";
+    var strongEnd = "</strong>";
 }
 
 <h2>Matches</h2>
@@ -16,23 +19,58 @@
             @Html.DisplayNameFor(model => model.FileName)
         </th>
         <th>
+            Player 1
+        </th>
+        <th>
+            Player 2
+        </th>
+        <th>
+            Moves
+        </th>
+        <th>
             Detail
         </th>
         <th></th>
     </tr>
 
-@foreach (var item in Model) {
-    <tr>
-        <td>
-            @Html.DisplayFor(modelItem => item.LastChange)
-        </td>
-        <td>
-            @Html.DisplayFor(modelItem => item.FileName)
-        </td>
-        <td>
-            @Html.ActionLink("Detail", "Match", new { tournamentMatch = item.FileName })
-        </td>
-    </tr>
-}
+    @foreach (var item in Model)
+    {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.LastChange)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FileName)
+            </td>
+            <td>
+                @if (item.Result == 1)
+                {
+                    @Html.Raw(strongStart)
+                }
+                @Html.DisplayFor(modelItem => item.Player1)
+                @if (item.Result == 1)
+                { 
+                    @Html.Raw(strongEnd)
+                }
+            </td>
+            <td>
+                @if (item.Result == -1)
+                {
+                    @Html.Raw(strongStart)
+                }
+                @Html.DisplayFor(modelItem => item.Player2)
+                @if (item.Result == -1)
+                {
+                    @Html.Raw(strongEnd)
+                }
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Moves)
+            </td>
+            <td>
+                @Html.ActionLink("Detail", "Match", new { tournamentMatch = item.FileName })
+            </td>
+        </tr>
+    }
 
 </table>
