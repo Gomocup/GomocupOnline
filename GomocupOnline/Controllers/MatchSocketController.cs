@@ -58,7 +58,7 @@ namespace GomocupOnline.Controllers
         {
             string path = e.FullPath.ToLower();
 
-            Thread.Sleep(100);
+            Thread.Sleep(50);
 
             ////multiple events filter
             //if (_watcherDelay.Contains(path))

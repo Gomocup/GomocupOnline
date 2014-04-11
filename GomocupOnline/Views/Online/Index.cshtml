@@ -111,7 +111,7 @@
             $('#status').text(evt.message);
         };
 
-        ws.onclose = function () {
+        ws.onclose = function (e) {
             $('#status').text("Disconnected");
             $('#status').css('color', 'red');
             ReconnectAfterTimeout();
