@@ -12,13 +12,35 @@
 
 <table>
     @foreach (var item in Model.Matches)
-{
-    <tr>
-        <td>@Html.Partial("MatchPartial", Model.Reference)</td>
-        <td>@Html.Partial("MatchPartial", item)</td>
-        
-    </tr>
-}
+    {
+        {
+            //last move index, when the matches are same
+            int diffSeparator = 0;
+
+            int min = Math.Min(Model.Reference.Moves.Length, item.Moves.Length);
+            for (int i = 0; i < min; i++)
+            {
+                var moveRef = Model.Reference.Moves[i];
+                var moveItem = item.Moves[i];
+                if( moveItem.X == moveRef.X && moveItem.Y == moveRef.Y)
+                {
+                    diffSeparator = i;
+                }
+                else
+                {
+                    break;
+                }
+            }
+
+            Model.Reference.DiffSeparator = diffSeparator;
+            item.DiffSeparator = diffSeparator;
+        }
+        <tr>
+            <td>@Html.Partial("MatchPartial", Model.Reference)</td>
+            <td>@Html.Partial("MatchPartial", item)</td>
+
+        </tr>
+    }
 </table>
 
 

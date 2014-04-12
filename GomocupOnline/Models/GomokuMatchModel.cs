@@ -25,6 +25,11 @@ namespace GomocupOnline.Models
         public int Result { get; set; }
 
         /// <summary>
+        /// move index
+        /// </summary>
+        public int DiffSeparator{ get; set; }
+
+        /// <summary>
         /// 1 - vyhrava Player1,  -1 vyhrava Player2, 0 remiza
         /// </summary>
         public int GetMatchResult()

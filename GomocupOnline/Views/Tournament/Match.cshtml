@@ -9,7 +9,8 @@
 <h2>@ViewBag.Title</h2>
 
 @Html.Partial("MatchPartial", Model)
-
+<br />
+<br />
 @Html.ActionLink("Compare " + Model.Player1 + " match with other engines", "Compare", "Tournament", new { engine = Model.Player1, tournamentMatch = Model.FileName }, null)
 
 

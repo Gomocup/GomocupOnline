@@ -181,16 +181,19 @@ namespace GomocupOnline.Controllers
                 if (item.Moves.Length < minMoves)
                     continue;
 
-                if( reference.Player1 == player)
-                {
-                    if (item.Player1 == reference.Player1)
-                        continue;//self
-                }
-                else if (reference.Player2 == player)
-                {
-                    if (item.Player2 == reference.Player1)
-                        continue;//self
-                }
+                if (reference.FileName.EndsWith(item.FileName))
+                    continue;//self
+
+                //if( reference.Player1 == player)
+                //{
+                //    if (item.Player1 == reference.Player1)
+                //        continue;//self
+                //}
+                //else if (reference.Player2 == player)
+                //{
+                //    if (item.Player2 == reference.Player1)
+                //        continue;//self
+                //}
 
                 bool founded = true;
 

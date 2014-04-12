@@ -1,5 +1,4 @@
-﻿function FormatMiliseconds(totalMiliseconds)
-{
+﻿function FormatMiliseconds(totalMiliseconds) {
     var totalSec = totalMiliseconds / 1000;
     var hours = parseInt(totalSec / 3600) % 24;
     var minutes = parseInt(totalSec / 60) % 60;
@@ -14,10 +13,13 @@
     return result;
 }
 
-function DrawGomoku(canvas, board, drawSettings, moveIndexTo)
-{
-    var colorPlayer1 = 'black';
-    var colorPlayer2 = 'white';
+function DrawGomoku(canvas, board, drawSettings, moveIndexTo) {
+    var colorPlayer1 = 'rgba(0,0,0,1)';
+    var colorPlayer2 = 'rgba(255,255,255,1)';
+    var colorPlayer1Light = 'rgba(0,0,0,0.2)';
+    var colorPlayer2Light = 'rgba(255,255,255,0.2)';
+    var stoneColors = [colorPlayer1, colorPlayer2, colorPlayer1Light, colorPlayer2Light];
+
     var stoneStroke = 'black';
     var footerBackground = '#DDDDE6';
     var footerMargin = 2;
@@ -25,7 +27,7 @@ function DrawGomoku(canvas, board, drawSettings, moveIndexTo)
     var context = canvas.getContext("2d");
 
     var width = canvas.width;
-    var height = canvas.height;    
+    var height = canvas.height;
 
     var squareSizeX = (width - 1) / board.Width;
     var squareSizeY = (height - 1) / board.Height;
@@ -53,18 +55,29 @@ function DrawGomoku(canvas, board, drawSettings, moveIndexTo)
 
     //last stone
     if (moveIndexTo > 0 && moveIndexTo == board.Moves.length) {
-        var last = board.Moves.length - 1;
-        var x = (board.Moves[last].X - 1) * squareSizeX + 1;
-        var y = (board.Moves[last].Y - 1) * squareSizeY + 1;
+
+        var index = board.Moves.length - 1;
+
+        var x = (board.Moves[index].X - 1) * squareSizeX + 1;
+        var y = (board.Moves[index].Y - 1) * squareSizeY + 1;
 
         context.fillStyle = 'red';
         context.fillRect(x, y, squareSizeX, squareSizeY);
     }
 
+    if (board.DiffSeparator && board.DiffSeparator >= 0 && board.DiffSeparator < board.Moves.length - 1) {
+        var index = board.DiffSeparator + 1;
+
+        var x = (board.Moves[index].X - 1) * squareSizeX + 1;
+        var y = (board.Moves[index].Y - 1) * squareSizeY + 1;
+
+        context.fillStyle = 'green';
+        context.fillRect(x, y, squareSizeX, squareSizeY);
+
+    }
+
     //stones
     var radius = Math.min(squareSizeX, squareSizeY) / 2 - 1;
-    
-    var stoneColors = [colorPlayer1, colorPlayer2];
 
     var durationTotalMs = 0;
 
@@ -76,7 +89,12 @@ function DrawGomoku(canvas, board, drawSettings, moveIndexTo)
 
         context.beginPath();
         context.arc(x, y, radius, 0, 2 * Math.PI, false);
-        context.fillStyle = stoneColors[i % 2];
+
+        var colorIndex = i % 2;
+        if (i > 0 && board.DiffSeparator && board.DiffSeparator < i - 1)
+            colorIndex += 2;
+
+        context.fillStyle = stoneColors[colorIndex];
         context.fill();
         context.lineWidth = drawSettings.lineWidth;
         context.strokeStyle = stoneStroke;
@@ -85,7 +103,7 @@ function DrawGomoku(canvas, board, drawSettings, moveIndexTo)
 
     //footer
     context.fillStyle = footerBackground;
-    context.fillRect(0, board.m * squareSizeY + 2, width, height);        
+    context.fillRect(0, board.m * squareSizeY + 2, width, height);
 
     //white player
 
