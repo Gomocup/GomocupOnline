@@ -18,20 +18,21 @@
     string board = "board" + id;
     string canvas = "canvas" + id;
     string status = "status" + id;
+    string replayState = "replayState" + id;    
 }
 
 <div>    
     <canvas id="@id" width="500" height="530"></canvas>
     <br />
     @*<button type="button" onclick="UpdateBoard('@id', '@(Model.FileName)')">Refresh</button>*@
-    <button type="button" onclick="ReplayStart()">Replay</button>
+    <button type="button" onclick="ReplayStart('@id', @(replayState), @(board))">Replay</button>
         
-    <button type="button" onclick="First()">&lt;&lt;</button>
-    <button type="button" onclick="Prev()">&lt;</button>
-    <button type="button" onclick="Pause()">&#124;&#124;</button>
-    <button type="button" onclick="Continue()">&#9658;</button>
-    <button type="button" onclick="Next()">&gt;</button>
-    <button type="button" onclick="Last()">&gt;&gt;</button>
+    <button type="button" onclick="First('@id', @(replayState), @(board))">&lt;&lt;</button>
+    <button type="button" onclick="Prev('@id', @(replayState), @(board))">&lt;</button>
+    <button type="button" onclick="Pause('@id', @(replayState), @(board))">&#124;&#124;</button>
+    <button type="button" onclick="Continue('@id', @(replayState), @(board))">&#9658;</button>
+    <button type="button" onclick="Next('@id', @(replayState), @(board))">&gt;</button>
+    <button type="button" onclick="Last('@id', @(replayState), @(board))">&gt;&gt;</button>
 </div>
 
 <script type="text/javascript" src="~/Scripts/gomoku.canvas.js"></script>
@@ -42,13 +43,13 @@
 
     @for (int i = 0; i < Model.Moves.Length; i++)
     {
-        @Html.Raw("    " + @(stones) + ".push({X:" + Model.Moves[i].X + ",Y:" + Model.Moves[i].Y + ",DurationMS:" + Model.Moves[i].DurationMS + "});\r\n");
+        @Html.Raw("    " + stones + ".push({X:" + Model.Moves[i].X + ",Y:" + Model.Moves[i].Y + ",DurationMS:" + Model.Moves[i].DurationMS + "});\r\n");
     }
 
-    var board = {
+    var @(board) = {
         Width : @(Model.Width),
         Height : @(Model.Height),
-        Moves: stones,
+        Moves: @(stones),
         Player1: '@(Model.Player1)',
         Player2: '@(Model.Player2)',
         FileName: '@(Model.FileName)',
@@ -59,18 +60,17 @@
         lineWidth: 0.5,
     };
 
-    var id = '@id';
-    var filename = '@(Model.FileName)';
 
+    var @(canvas) = document.getElementById('@id');
 
-    var canvas = document.getElementById(id);
+    var @(replayState) = {
+        moveIndex: @(board).Moves.length,
+        pause: true,        
+    };
 
-    var moveIndex = board.Moves.length;
-    var pause = true;
+    DrawGomoku(@(canvas), @(board), drawSettings, @(replayState).moveIndex);
 
-    DrawGomoku(canvas, board, drawSettings, moveIndex);
-
-    function UpdateBoard()
+    function UpdateBoard(id, filename, board)
     {
         var canvas = document.getElementById(id, filename);
 
@@ -83,7 +83,7 @@
         });
     }
 
-    function Replay()
+    function Replay(id, replayState, board)
     {
         var canvas = document.getElementById(id, filename);
 
@@ -92,72 +92,72 @@
 
         DrawGomoku(canvas, board, drawSettings, moveIndex);
 
-        if(pause || moveIndex >= board.Moves.length)
-            return; //end of replay
+        if(replayState.pause ||  replayState.moveIndex >= board.Moves.length)
+        return; //end of replay
 
         setTimeout(function ()
         {
-            if(pause)
+            if(replayState.pause)
                 return;
 
-            moveIndex = moveIndex+ 1;
-            Replay();
+            replayState.moveIndex = replayState.moveIndex+ 1;
+            Replay(id, replayState, board);
         },
         replayPauseMs);
     }
 
-    function Pause()
-    {       
-        pause = true;
+    function Pause(id, replayState, board)
+    {
+        replayState.pause = true;
     }
 
-    function Continue()
+    function Continue(id, replayState, board)
     {
-        if(moveIndex == board.Moves.length)
-            moveIndex = 1;
-        pause = false;
-        Replay();
+        if(replayState.moveIndex == board.Moves.length)
+            replayState.moveIndex = 1;
+        replayState.pause = false;
+        Replay(id, replayState, board);
     }
 
-    function Last()
+    function Last(id, replayState, board)
     {
-        moveIndex =  board.Moves.length;
-        pause = true;
-        Replay();
+        replayState.moveIndex =  board.Moves.length;
+        replayState.pause = true;
+        Replay(id, replayState, board);
     }
 
-    function First()
+    function First(id, replayState, board)
     {
-        moveIndex =  1;
-        pause = true;
-        Replay();
+        replayState.moveIndex =  1;
+        replayState.pause = true;
+        Replay(id, replayState, board);
     }
 
-    function Next()
+    function Next(id, replayState, board)
     {
-        pause = true;
+        replayState.pause = true;
         if( moveIndex < board.Moves.length )
         {
-            moveIndex = moveIndex +  1;    
-            Replay();
+            replayState.moveIndex = replayState.moveIndex +  1;
+            Replay(id, replayState, board);
         }
     }
 
-    function Prev()
+    function Previd(id, replayState, board)
     {
         pause = true;
         if( moveIndex > 0)
         {
-            moveIndex = moveIndex -  1;       
-            Replay();
+            replayState.moveIndex = replayState.moveIndex -  1;
+            Replay(id, replayState, board);
         }
     }
 
-    function ReplayStart()
+    function ReplayStart(id, replayState, board)
     {
-        moveIndex = 1;
-        pause = false;
-        Replay();
+        replayState.moveIndex = 1;
+        replayState.pause = false;
+        Replay(id, replayState, board);
     }
 
     @*var socketUrl = '/api/matchsocket?match=' + '@(Model.FileName)';
