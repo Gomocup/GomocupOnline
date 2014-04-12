@@ -1,0 +1,27 @@
+﻿@using System.Linq
+@using GomocupOnline.Models
+
+@model GomokuCompareModel
+
+@{
+    ViewBag.Title = "Compare " + Model.Player;
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>@ViewBag.Title</h2>
+
+<table>
+    @foreach (var item in Model.Matches)
+{
+    <tr>
+        <td>@Html.Partial("MatchPartial", Model.Reference)</td>
+        <td>@Html.Partial("MatchPartial", item)</td>
+        
+    </tr>
+}
+</table>
+
+
+@section scripts {
+    <script type="text/javascript" src="~/Scripts/gomoku.replay.js"></script>
+}

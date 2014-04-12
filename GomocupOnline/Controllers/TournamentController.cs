@@ -77,7 +77,7 @@ namespace GomocupOnline.Controllers
             };
 
             return View("Matches", model);
-        }
+        }       
 
         public ActionResult Matches(string tournament)
         {
@@ -93,6 +93,23 @@ namespace GomocupOnline.Controllers
             };
 
             return View(model);
+        }
+
+        private static GomokuMatchModel[] GetMatchesByTournament(string tournament)
+        {
+            string path = AppDomain.CurrentDomain.GetData("DataDirectory").ToString();
+            path = Path.Combine(path, "Tournaments");
+            path = Path.Combine(path, tournament);
+
+            string[] files = Directory.GetFiles(path, "*.psq");
+
+            GomokuMatchModel[] model = new GomokuMatchModel[files.Length];
+
+            for (int i = 0; i < files.Length; i++)
+            {             
+                model[i] = new GomokuMatchModel(files[i]);
+            }
+            return model;
         }
 
         private static GomokuMatchInfoModel[] GetMatchesModelByTournament(string tournament)
@@ -124,10 +141,84 @@ namespace GomocupOnline.Controllers
             return model;
         }
 
+        public ActionResult Compare(string player, string tournamentMatch)
+        {
+            SecurityCheckPath(tournamentMatch);
+
+            string tournament = Path.GetDirectoryName(tournamentMatch);
+
+            string path = GetMatchPath(tournamentMatch);
+            GomokuMatchModel reference = new GomokuMatchModel(path);
+            reference.FileName = tournamentMatch.Replace("\\", "\\\\");
+
+
+            GomokuMatchModel[] sameOpening = GetMatchesWithSameOpening(reference, tournament, player);
+
+            GomokuCompareModel model = new GomokuCompareModel()
+            {
+                Matches = sameOpening,
+                Reference = reference,
+                Player = player,
+            };
+
+            return View(model);
+        }
+
+        private GomokuMatchModel[] GetMatchesWithSameOpening(GomokuMatchModel reference, string tournament, string player)
+        {
+            int minMoves = 3;
+
+            if (reference.Moves.Length < minMoves)
+                return new GomokuMatchModel[0];
+
+           
+            GomokuMatchModel[] all = GetMatchesByTournament(tournament);
+
+            List<GomokuMatchModel> selection = new List<GomokuMatchModel>();
+
+            foreach (GomokuMatchModel item in all)
+            {
+                if (item.Moves.Length < minMoves)
+                    continue;
+
+                if( reference.Player1 == player)
+                {
+                    if (item.Player1 == reference.Player1)
+                        continue;//self
+                }
+                else if (reference.Player2 == player)
+                {
+                    if (item.Player2 == reference.Player1)
+                        continue;//self
+                }
+
+                bool founded = true;
+
+                for (int i = 0; i < minMoves; i++)
+                {
+                    if (item.Moves[i].X != reference.Moves[i].X)
+                    {
+                        founded = false;
+                        break;
+                    }
+                    if (item.Moves[i].Y != reference.Moves[i].Y)
+                    {
+                        founded = false;
+                        break;
+                    }
+                }
+                if( founded)
+                {
+                    selection.Add(item);
+                }
+            }
+
+            return selection.ToArray();
+        }
+
         public ActionResult Match(string tournamentMatch)
         {
-            if (tournamentMatch == null || tournamentMatch.Contains(".."))
-                throw new ArgumentException();
+            SecurityCheckPath(tournamentMatch);
 
             string path = GetMatchPath(tournamentMatch);
             GomokuMatchModel model = new GomokuMatchModel(path);
@@ -135,10 +226,15 @@ namespace GomocupOnline.Controllers
             return View(model);
         }
 
-        public JsonResult MatchJSON(string tournamentMatch)
+        private static void SecurityCheckPath(string tournamentMatch)
         {
             if (tournamentMatch == null || tournamentMatch.Contains(".."))
                 throw new ArgumentException();
+        }
+
+        public JsonResult MatchJSON(string tournamentMatch)
+        {
+            SecurityCheckPath(tournamentMatch);
 
             string path = GetMatchPath(tournamentMatch);
             GomokuMatchModel model = new GomokuMatchModel(path);
@@ -148,6 +244,8 @@ namespace GomocupOnline.Controllers
 
         public static string GetMatchPath(string tournamentMatch)
         {
+            SecurityCheckPath(tournamentMatch);
+
             string path = AppDomain.CurrentDomain.GetData("DataDirectory").ToString();
             path = Path.Combine(path, "Tournaments");
             path += "\\" + tournamentMatch;

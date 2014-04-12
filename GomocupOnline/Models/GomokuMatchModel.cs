@@ -4,9 +4,10 @@ using System.IO;
 using System.Linq;
 using System.Text;
 using System.Web;
+using System.Diagnostics;
 
 namespace GomocupOnline.Models
-{
+{  
     public class GomokuMatchModel
     {
         public string FileName { get; set; }
@@ -131,6 +132,7 @@ namespace GomocupOnline.Models
         }
     }
 
+    [DebuggerDisplay("X = {X}, Y = {Y}")]
     public class GomokuMove
     {
         public int X { get; set; }

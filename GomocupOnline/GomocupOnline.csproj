@@ -141,6 +141,7 @@
     <None Include="Scripts\jquery-2.1.0.intellisense.js" />
     <Content Include="Scripts\bootstrap.min.js" />
     <Content Include="Scripts\gomoku.canvas.js" />
+    <Content Include="Scripts\gomoku.replay.js" />
     <Content Include="Scripts\html5jtabs.js" />
     <Content Include="Scripts\jquery-2.1.0.js" />
     <Content Include="Scripts\jquery-2.1.0.min.js" />
@@ -175,6 +176,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Hubs\Chat.cs" />
+    <Compile Include="Models\GomokuCompareModel.cs" />
     <Compile Include="Models\ResultTable.cs" />
     <Compile Include="Models\GomokuMatchInfoModel.cs" />
     <Compile Include="Models\GomokuMatchModel.cs" />
@@ -193,6 +195,7 @@
     <Content Include="Views\Chat\Index.cshtml" />
     <Content Include="Views\Tournament\Openings.cshtml" />
     <Content Include="Views\Tournament\Match.cshtml" />
+    <Content Include="Views\Tournament\Compare.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
