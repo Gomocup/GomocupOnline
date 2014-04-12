@@ -187,11 +187,12 @@
     <Content Include="packages.config" />
     <Content Include="Views\Tournament\Results.cshtml" />
     <Content Include="Views\Tournament\Matches.cshtml" />
-    <Content Include="Views\Tournament\Match.cshtml" />
+    <Content Include="Views\Shared\MatchPartial.cshtml" />
     <Content Include="Views\Online\Index.cshtml" />
     <Content Include="Views\Tournament\Schedule.cshtml" />
     <Content Include="Views\Chat\Index.cshtml" />
     <Content Include="Views\Tournament\Openings.cshtml" />
+    <Content Include="Views\Tournament\Match.cshtml" />
     <None Include="Web.Debug.config">
       <DependentUpon>Web.config</DependentUpon>
     </None>
