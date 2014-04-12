@@ -1,4 +1,8 @@
-﻿@model IEnumerable<GomocupOnline.Models.GomokuMatchInfoModel>
+﻿@using System.Linq
+@using GomocupOnline.Models
+
+@model TournamentMatch
+
 
 @{
     ViewBag.Title = "Matches";
@@ -6,17 +10,33 @@
 
     var strongStart = "<strong>";
     var strongEnd = "</strong>";
+
+    string[] players1 = Model.Matches.Select(match => match.Player1).Distinct().ToArray();
+    string[] players2 = Model.Matches.Select(match => match.Player2).Distinct().ToArray();
+    List<string> playersBoth = new List<string>();
+    playersBoth.AddRange(players1);
+    playersBoth.AddRange(players2);
+    string[] players = playersBoth.Distinct().ToArray();
 }
+
+<h2>Engines</h2>
+
+@foreach (string engine in players)
+{
+    @Html.ActionLink(engine, "MatchesByEngine", "Tournament", new { engine = engine, tournament = Model.Tournament }, null)
+    <text>,</text>
+}
+    
 
 <h2>Matches</h2>
 
 <table class="table">
     <tr>
         <th>
-            @Html.DisplayNameFor(model => model.LastChange)
+            LastChange
         </th>
         <th>
-            @Html.DisplayNameFor(model => model.FileName)
+            FileName
         </th>
         <th>
             Player 1
@@ -33,7 +53,7 @@
         <th></th>
     </tr>
 
-    @foreach (var item in Model)
+    @foreach (var item in Model.Matches)
     {
         <tr>
             <td>

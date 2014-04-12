@@ -43,7 +43,7 @@ namespace GomocupOnline.Controllers
             path = Path.Combine(path, "openings.txt");
 
             return DownloadBinary(path);            
-        }
+        }       
 
         public ActionResult Results()
         {
@@ -59,11 +59,44 @@ namespace GomocupOnline.Controllers
             return View(model);
         }
 
+        public ActionResult MatchesByEngine(string tournament, string engine)
+        {
+            if (tournament == null || tournament.Contains("."))
+                throw new ArgumentException();
+
+            GomokuMatchInfoModel[] matches = GetMatchesModelByTournament(tournament);
+
+            matches = matches
+                .Where(m => m.Player1 == engine || m.Player2 == engine)
+                .ToArray();
+
+            TournamentMatch model = new TournamentMatch()
+            {
+                Matches = matches,
+                Tournament = tournament,
+            };
+
+            return View("Matches", model);
+        }
+
         public ActionResult Matches(string tournament)
         {
             if (tournament == null || tournament.Contains("."))
                 throw new ArgumentException();
 
+            GomokuMatchInfoModel[] matches = GetMatchesModelByTournament(tournament);
+
+            TournamentMatch model = new TournamentMatch()
+            {
+                Matches = matches,
+                Tournament = tournament,
+            };
+
+            return View(model);
+        }
+
+        private static GomokuMatchInfoModel[] GetMatchesModelByTournament(string tournament)
+        {
             string path = AppDomain.CurrentDomain.GetData("DataDirectory").ToString();
             path = Path.Combine(path, "Tournaments");
             path = Path.Combine(path, tournament);
@@ -88,8 +121,7 @@ namespace GomocupOnline.Controllers
                     Result = matchModel.GetMatchResult(),
                 };
             }
-
-            return View(model);
+            return model;
         }
 
         public ActionResult Match(string tournamentMatch)

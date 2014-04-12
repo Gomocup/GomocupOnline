@@ -6,6 +6,13 @@ using System.Web;
 
 namespace GomocupOnline.Models
 {
+    public class TournamentMatch
+    {
+        public GomokuMatchInfoModel[] Matches { get; set; }
+
+        public string Tournament { get; set; }
+    }
+
     public class GomokuMatchInfoModel
     {
         [DisplayName("LastChange")]
