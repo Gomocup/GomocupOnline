@@ -97,6 +97,8 @@ namespace GomocupOnline.Controllers
 
         private static GomokuMatchModel[] GetMatchesByTournament(string tournament)
         {
+            SecurityCheckPath(tournament);
+
             string path = AppDomain.CurrentDomain.GetData("DataDirectory").ToString();
             path = Path.Combine(path, "Tournaments");
             path = Path.Combine(path, tournament);
@@ -229,9 +231,9 @@ namespace GomocupOnline.Controllers
             return View(model);
         }
 
-        private static void SecurityCheckPath(string tournamentMatch)
+        public static void SecurityCheckPath(string tournamentMatch)
         {
-            if (tournamentMatch == null || tournamentMatch.Contains(".."))
+            if (tournamentMatch == null || tournamentMatch.Contains("..") || tournamentMatch.Contains(":"))
                 throw new ArgumentException();
         }
 

@@ -67,6 +67,16 @@
         return divTable;
     }
 
+    function MakeDownloadLinks(container)
+    {
+        container.find('th').each(function () {
+            var val = $(this).text();
+            if(val == '-' || val == 'Points' || val == 'Ratio' || val == 'Total')
+                return;
+            $(this).html(jQuery('<a>').attr('href', '/Engine/Download?engine=' + val).text(val));            
+        });
+    }
+
     var ws;
     function Reconnect() {
         if (ws)
@@ -103,6 +113,7 @@
                 var table = received;
                 var container = GetOrCreateTable(table.FileName);
                 container.html(received.Table); //replace content of table
+                //MakeDownloadLinks(container);
             }
         };
 

@@ -22,6 +22,10 @@
     padding: 5px;
 }
 
+th a
+{
+    display: block;
+}
 
 .win
 {

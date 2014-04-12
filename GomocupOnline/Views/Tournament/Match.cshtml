@@ -11,8 +11,14 @@
 @Html.Partial("MatchPartial", Model)
 <br />
 <br />
-@Html.ActionLink("Compare " + Model.Player1 + " match with other engines", "Compare", "Tournament", new { engine = Model.Player1, tournamentMatch = Model.FileName }, null)
 
+@Html.ActionLink("Download " + Model.Player1, "Download", "Engine", new { engine = Model.Player1 }, null)
+<br />
+@Html.ActionLink("Download " + Model.Player2, "Download", "Engine", new { engine = Model.Player2 }, null)
+<br />
+@Html.ActionLink("Compare " + Model.Player1 + " match with other engines", "Compare", "Tournament", new { engine = Model.Player1, tournamentMatch = Model.FileName }, null)
+<br />
+@Html.ActionLink("Compare " + Model.Player2 + " match with other engines", "Compare", "Tournament", new { engine = Model.Player2, tournamentMatch = Model.FileName }, null)
 
 
 
