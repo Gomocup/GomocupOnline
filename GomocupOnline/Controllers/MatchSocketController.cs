@@ -249,7 +249,11 @@ namespace GomocupOnline.Controllers
         {
             var files = Directory.EnumerateFiles(_tournamentOnlinePath, "*.psq", SearchOption.AllDirectories).Reverse().ToList();
 
-            files.AddRange(Directory.EnumerateFiles(_tournamentPath, "*.html", SearchOption.AllDirectories));
+            var tablesByTime = Directory.EnumerateFiles(_tournamentPath, "*.html", SearchOption.AllDirectories)
+                .OrderByDescending(f => new FileInfo(f).CreationTime)
+                .ToArray();
+
+            files.AddRange(tablesByTime);
 
             foreach (var file in files)
             {

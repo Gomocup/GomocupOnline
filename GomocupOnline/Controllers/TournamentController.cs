@@ -10,10 +10,39 @@ namespace GomocupOnline.Controllers
 {
     public class TournamentController : Controller
     {
-        
+
         public ActionResult Schedule()
         {
             return View();
+        }
+
+        public ActionResult Openings()
+        {
+            return View();
+        }
+
+        public ActionResult OpeningsImg()
+        {
+            string path = AppDomain.CurrentDomain.GetData("DataDirectory").ToString();
+            path = Path.Combine(path, "openings.png");           
+            Response.ContentType = "image/png";
+
+            return DownloadBinary(path);    
+        }
+
+        public FileResult DownloadBinary(string path)
+        {
+            byte[] fileBytes = System.IO.File.ReadAllBytes(path);
+            string fileName = Path.GetFileName(path);
+            return File(fileBytes, System.Net.Mime.MediaTypeNames.Application.Octet, fileName);
+        }
+
+        public ActionResult OpeningsDownload()
+        {
+            string path = AppDomain.CurrentDomain.GetData("DataDirectory").ToString();
+            path = Path.Combine(path, "openings.txt");
+
+            return DownloadBinary(path);            
         }
 
         public ActionResult Results()
@@ -21,7 +50,7 @@ namespace GomocupOnline.Controllers
             string path = AppDomain.CurrentDomain.GetData("DataDirectory").ToString();
             path = Path.Combine(path, "Tournaments");
 
-            if( !Directory.Exists(path))
+            if (!Directory.Exists(path))
                 return View(new TournamentModel[0]);
 
             string[] dirs = Directory.GetDirectories(path);
@@ -58,7 +87,7 @@ namespace GomocupOnline.Controllers
                     Moves = matchModel.Moves.Length,
                     Result = matchModel.GetMatchResult(),
                 };
-            }            
+            }
 
             return View(model);
         }
@@ -70,7 +99,7 @@ namespace GomocupOnline.Controllers
 
             string path = GetMatchPath(tournamentMatch);
             GomokuMatchModel model = new GomokuMatchModel(path);
-            model.FileName = tournamentMatch.Replace("\\","\\\\");
+            model.FileName = tournamentMatch.Replace("\\", "\\\\");
             return View(model);
         }
 

@@ -10,24 +10,70 @@ using XSockets.Client40.Common.Event.Interface;
 
 namespace SocketUploader
 {
+
     public class Notifier
     {
         UploaderConfig _config;
         XSocketClient _client;
+        Thread _uploadThread = new Thread(UploadThreadStatic);
+        object _locker = new object();
+        AutoResetEvent _autoResetEvent = new AutoResetEvent(true);
+
+        HashSet<string> _changedFiles = new HashSet<string>();
 
         List<FileSystemWatcher> _watcher = new List<FileSystemWatcher>();
 
         public Notifier(UploaderConfig config, XSocketClient client)
         {
             _config = config;
-            _client = client;            
+            _client = client;
         }
 
         void watcher_Changed(object sender, FileSystemEventArgs e)
         {
-            Thread.Sleep(50);
+            lock (_locker)
+            {
+                _changedFiles.Add(e.FullPath);
+            }
 
-            string source = e.FullPath.ToLower();
+
+
+            //Upload(e.FullPath);
+
+            _autoResetEvent.Set();
+        }
+
+        static void UploadThreadStatic(object threadContext)
+        {
+            Notifier notifier = (Notifier)threadContext;
+            notifier.UploadThread();
+        }
+
+        void UploadThread()
+        {
+            while (true)
+            {
+                _autoResetEvent.WaitOne();
+
+                Thread.Sleep(200); //delay
+
+                string[] dump = null;
+                lock (_locker)
+                {
+                    dump = _changedFiles.ToArray();
+                    _changedFiles.Clear();
+                }
+
+                foreach (var item in dump)
+                {
+                    Upload(item);
+                }
+            }
+        }
+
+        void Upload(string fullpath)
+        {
+            string source = fullpath.ToLower();
             string target = _config.Items
                 .Where(item => item.SourceFileName == source)
                 .Select(item => item.TargetFileName)
@@ -38,31 +84,31 @@ namespace SocketUploader
                 BinaryData data = null;
 
                 //mutex, ktery pouziva piskvorkna ukladani psq
-                using (Mutex mutex = new Mutex(false, @"Global\" + source.ToLower().Replace('\\',':')))
+                using (Mutex mutex = new Mutex(false, @"Global\" + source.ToLower().Replace('\\', ':')))
                 {
                     if (mutex.WaitOne(500, false))
                     {
                         data = new BinaryData(source);
-                    }                   
+                    }
                     else
                     {
                         Trace.WriteLine("Mutex timeout to  " + source);
                         return;
                     }
-                }                
+                }
 
                 Trace.WriteLine("Sending " + source + " as " + target);
                 _client.Send(target);
 
                 _client.Send(data);
             }
-            catch(IOException ex)
+            catch (IOException ex)
             {
                 Trace.WriteLine(DateTime.Now + " reading file failed");
 
                 Trace.WriteLine(ex.Message);
-            }      
-            catch(Exception)
+            }
+            catch (Exception)
             {
                 Trace.WriteLine(DateTime.Now + " sending file failed");
 
@@ -70,7 +116,7 @@ namespace SocketUploader
                 {
                     _client = new XSocketClient(_config.Url, "*");
                     Thread.Sleep(1000);
-                    _client.Open();                    
+                    _client.Open();
                 }
                 catch
                 {
@@ -88,11 +134,13 @@ namespace SocketUploader
 
                 FileSystemWatcher watcher = new FileSystemWatcher();
                 watcher.Path = Path.GetDirectoryName(item.SourceFileName);
-                watcher.Filter = Path.GetFileName(item.SourceFileName);                
+                watcher.Filter = Path.GetFileName(item.SourceFileName);
                 watcher.NotifyFilter = NotifyFilters.LastWrite;
                 watcher.Changed += watcher_Changed;
                 watcher.EnableRaisingEvents = true;
             }
+
+            _uploadThread.Start(this);
         }
     }
 

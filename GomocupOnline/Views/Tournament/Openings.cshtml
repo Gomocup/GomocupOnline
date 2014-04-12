@@ -1,0 +1,15 @@
+﻿
+@model string
+
+@{
+    ViewBag.Title = "Openings";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>Openings</h2>
+
+<img src="@Url.Action("OpeningsImg", "Tournament")" />
+
+<br /><br />
+
+@Html.ActionLink("Download", "OpeningsDownload", "Tournament")
