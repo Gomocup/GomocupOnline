@@ -22,7 +22,7 @@
             {
                 var moveRef = Model.Reference.Moves[i];
                 var moveItem = item.Moves[i];
-                if( moveItem.X == moveRef.X && moveItem.Y == moveRef.Y)
+                if (moveItem.X == moveRef.X && moveItem.Y == moveRef.Y)
                 {
                     diffSeparator = i;
                 }
@@ -35,7 +35,17 @@
             Model.Reference.DiffSeparator = diffSeparator;
             item.DiffSeparator = diffSeparator;
         }
-        <tr>            
+        <tr>
+            <td colspan="2" style="text-align:center">
+                <br /><br />
+                <h3>
+                    @Model.Player
+                    vs
+                    @(Model.Player == Model.Reference.Player1 ? item.Player1 : item.Player2)
+                </h3>
+            </td>
+        </tr>
+        <tr>
             <td>@Html.Partial("MatchPartial", Model.Reference)</td>
             <td>@Html.Partial("MatchPartial", item)</td>
 

@@ -24,10 +24,10 @@ namespace GomocupOnline.Controllers
         public ActionResult OpeningsImg()
         {
             string path = AppDomain.CurrentDomain.GetData("DataDirectory").ToString();
-            path = Path.Combine(path, "openings.png");           
+            path = Path.Combine(path, "openings.png");
             Response.ContentType = "image/png";
 
-            return DownloadBinary(path);    
+            return DownloadBinary(path);
         }
 
         public FileResult DownloadBinary(string path)
@@ -42,8 +42,8 @@ namespace GomocupOnline.Controllers
             string path = AppDomain.CurrentDomain.GetData("DataDirectory").ToString();
             path = Path.Combine(path, "openings.txt");
 
-            return DownloadBinary(path);            
-        }       
+            return DownloadBinary(path);
+        }
 
         public ActionResult Results()
         {
@@ -77,7 +77,7 @@ namespace GomocupOnline.Controllers
             };
 
             return View("Matches", model);
-        }       
+        }
 
         public ActionResult Matches(string tournament)
         {
@@ -108,7 +108,7 @@ namespace GomocupOnline.Controllers
             GomokuMatchModel[] model = new GomokuMatchModel[files.Length];
 
             for (int i = 0; i < files.Length; i++)
-            {             
+            {
                 model[i] = new GomokuMatchModel(files[i]);
             }
             return model;
@@ -143,7 +143,7 @@ namespace GomocupOnline.Controllers
             return model;
         }
 
-        public ActionResult Compare(string player, string tournamentMatch)
+        public ActionResult Compare(string engine, string tournamentMatch)
         {
             SecurityCheckPath(tournamentMatch);
 
@@ -154,26 +154,26 @@ namespace GomocupOnline.Controllers
             reference.FileName = tournamentMatch.Replace("\\", "\\\\");
 
 
-            GomokuMatchModel[] sameOpening = GetMatchesWithSameOpening(reference, tournament, player);
+            GomokuMatchModel[] sameOpening = GetMatchesWithSameOpening(reference, tournament, engine);
 
             GomokuCompareModel model = new GomokuCompareModel()
             {
                 Matches = sameOpening,
                 Reference = reference,
-                Player = player,
+                Player = engine,
             };
 
             return View(model);
         }
 
-        private GomokuMatchModel[] GetMatchesWithSameOpening(GomokuMatchModel reference, string tournament, string player)
+        private GomokuMatchModel[] GetMatchesWithSameOpening(GomokuMatchModel reference, string tournament, string engine)
         {
             int minMoves = 3;
 
             if (reference.Moves.Length < minMoves)
                 return new GomokuMatchModel[0];
 
-           
+
             GomokuMatchModel[] all = GetMatchesByTournament(tournament);
 
             List<GomokuMatchModel> selection = new List<GomokuMatchModel>();
@@ -185,6 +185,8 @@ namespace GomocupOnline.Controllers
 
                 if (reference.FileName.EndsWith(item.FileName))
                     continue;//self
+
+                int maxMoves = Math.Max(item.Moves.Length, reference.Moves.Length);
 
                 //if( reference.Player1 == player)
                 //{
@@ -199,20 +201,26 @@ namespace GomocupOnline.Controllers
 
                 bool founded = true;
 
-                for (int i = 0; i < minMoves; i++)
+                for (int i = 0; i < maxMoves; i++)
                 {
-                    if (item.Moves[i].X != reference.Moves[i].X)
+                    if ((item.Moves[i].X != reference.Moves[i].X) || (item.Moves[i].Y != reference.Moves[i].Y))
                     {
-                        founded = false;
-                        break;
-                    }
-                    if (item.Moves[i].Y != reference.Moves[i].Y)
-                    {
+                        if (i % 2 == 1 && engine == reference.Player2 && i > minMoves)
+                        {
+                            founded = true;
+                            break;
+                        }
+
+                        if (i % 2 == 0 && engine == reference.Player1 && i > minMoves)
+                        {
+                            founded = true;
+                            break;
+                        }
                         founded = false;
                         break;
                     }
                 }
-                if( founded)
+                if (founded)
                 {
                     selection.Add(item);
                 }
