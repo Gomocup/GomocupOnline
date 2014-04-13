@@ -186,7 +186,7 @@ namespace GomocupOnline.Controllers
                 if (reference.FileName.EndsWith(item.FileName))
                     continue;//self
 
-                int maxMoves = Math.Max(item.Moves.Length, reference.Moves.Length);
+                int maxMoves = Math.Min(item.Moves.Length, reference.Moves.Length);
 
                 //if( reference.Player1 == player)
                 //{

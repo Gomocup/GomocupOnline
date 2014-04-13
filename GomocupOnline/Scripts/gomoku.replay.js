@@ -56,15 +56,15 @@ function First(id, replayState, board) {
 
 function Next(id, replayState, board) {
     replayState.pause = true;
-    if (moveIndex < board.Moves.length) {
+    if (replayState.moveIndex < board.Moves.length) {
         replayState.moveIndex = replayState.moveIndex + 1;
         Replay(id, replayState, board);
     }
 }
 
-function Previd(id, replayState, board) {
+function Prev(id, replayState, board) {
     pause = true;
-    if (moveIndex > 0) {
+    if (replayState.moveIndex > 0) {
         replayState.moveIndex = replayState.moveIndex - 1;
         Replay(id, replayState, board);
     }
