@@ -83,7 +83,8 @@
                     }
                     createCookie('displayname', $('#displayname').val(), 7);
 
-                    // Call the Send method on the hub.
+                    // Call the Send method on the hub.                    
+
                     chat.server.send($('#displayname').val(), $('#message').val());
                     // Clear text box and reset focus for next comment.
                     $('#message').val('').focus();
